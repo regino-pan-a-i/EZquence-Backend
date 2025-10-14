@@ -47,16 +47,23 @@ orderModel.getOrderlListByCompanyId = async (companyId) => {
     }
 }
 
-orderModel.getOrderListByDateRange = async (startDate, endDate) =>{
+orderModel.getOrderListByDateRange = async (startDate, endDate = new Date().toISOString()) =>{
 
-    // Dates must be in format YYY-MM-DD
+    try{
 
-    // Filter by date range using greater than/equal and less than/equal
-    const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .gte('created_at', startDate)  
-    .lte('created_at', endDate); 
+        console.log(startDate)
+        console.log(endDate)
+        const { data, error } = await supabase
+            .from('order')
+            .select('*')
+            .gte('dateCreated', startDate)  
+            .lt('dateCreated', endDate)
+            .order('dateCreated', { ascending: true });
+        console.log(data)
+        return data
+    } catch (error) {
+        throw error;
+    }
 }
 
 orderModel.getOrderDetails = async (id) =>{
@@ -117,11 +124,10 @@ orderModel.createOrder = async (orderData) => {
             }])
             .select();
 
-        console.log(data)
-        // for (product of orderData.productList){
-
-        //     orderModel.createProductList(product)
-        // }
+        for (let product of orderData.productList){
+            product['orderId'] = data[0]['orderId']
+            orderModel.createProductList(product)
+        }
 
         if (error) throw error;
         return data;
@@ -160,18 +166,18 @@ orderModel.deleteOrder = async (id) => {
     }
 }
 
-orderModel.createProductList = async (productList) =>{
+orderModel.createProductList = async (productData) =>{
     try {
 
         const { data, error } = await supabase
-            .from('order')
+            .from('orderProductList')
             .insert([{
-                orderTotal: orderData.orderTotal,
-                productId: orderData.productId,
-                quantity: orderData.quantity,
-                unitPrice: orderData.unitPrice,
-                total: orderData.total,
-                companyId: orderData.companyId
+                orderId: productData.orderId,
+                productId: productData.productId,
+                quantity: productData.quantity,
+                unitPrice: productData.unitPrice,
+                total: productData.total,
+                companyId: productData.companyId
             }])
             .select();
         
