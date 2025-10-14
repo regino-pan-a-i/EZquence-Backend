@@ -5,7 +5,60 @@ const orderModel = require('../models/order')
 
 
 
+
 const orderController = {};
+
+orderController.getDailyOrderList = async (req, res, next) => {
+    try {
+        const date = new Date()
+        date.setHours(0, 0, 0, 0) // Set to 12 AM (midnight)
+        const startDate = date.toISOString()
+        const { companyId } = 1
+        let data = await orderModel.getOrderListByDateRange(startDate);
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+
+}
+
+orderController.getOrderListByDateRange = async (req, res, next) => {
+    try {
+        const { companyId } = 1
+
+        let startDate = req.query.start
+        let endDate = req.query.end
+
+        startDate = new Date(startDate)
+        startDate.setHours(0, 0, 0, 0)
+        startDate = startDate.toISOString()
+        
+        endDate = new Date(endDate)
+        endDate.setHours(23, 59, 59, 999)
+        endDate = endDate.toISOString()
+
+        let data = await orderModel.getOrderListByDateRange(startDate, endDate);
+
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+
+}
 
 orderController.getOrderDetails = async (req, res, next) => {
     try {
@@ -29,7 +82,6 @@ orderController.createOrder = async (req, res, next) =>{
     try {
         const { companyId } = 1
         const orderData = req.body
-        console.log(orderData)
         let data = await orderModel.createOrder(orderData);
         res.status(200).json({
             success: true,

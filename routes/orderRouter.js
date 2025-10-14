@@ -18,10 +18,10 @@ router.get('/', (req, res) => {
 });
 
 // Get today's Order list
-router.get('/day', ()=>{})
+router.get('/today', orderController.getDailyOrderList)
 
 // Get Order list by date range
-router.get('/dateRange', ()=>{})
+router.get('/dateRange', orderController.getOrderListByDateRange)
 
 
 // Get Order details
