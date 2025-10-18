@@ -1,4 +1,6 @@
 const Util = {}
+const jwt = require("jsonwebtoken")
+const dotenv = require('dotenv');
 
 /* ****************************************
  * Middleware For Handling Errors
@@ -18,6 +20,7 @@ Util.verifyUser = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
+    console.log(err)
     res.status(403).json({ error: 'Invalid token' });
   }
 }
