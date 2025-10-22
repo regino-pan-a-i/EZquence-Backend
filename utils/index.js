@@ -21,8 +21,26 @@ Util.verifyUser = (req, res, next) => {
     next();
   } catch (err) {
     console.log(err)
-    res.status(403).json({ error: 'Invalid token' });
+    res.status(401).json({ error: 'Invalid token' });
   }
 }
 
+
+Util.verifyAdmin = (req, res, next) => {
+  try {
+    // If verifyUser middleware didn't run or token was missing/invalid
+    if (!req.user) {
+      return res.status(401).json({ error: 'No token or invalid token' });
+    }
+
+    const role = (req.user.user_role || '').toString().toUpperCase();
+    if (role === 'ADMIN') return next();
+
+    // Authenticated but not an admin
+    return res.status(403).json({ error: 'Forbidden: admin only' });
+  } catch (err) {
+    console.error('verifyAdmin error:', err);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 module.exports = Util;
