@@ -43,4 +43,21 @@ Util.verifyAdmin = (req, res, next) => {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
+Util.verifyWorker = (req, res, next) => {
+  try {
+    // If verifyUser middleware didn't run or token was missing/invalid
+    if (!req.user) {
+      return res.status(401).json({ error: 'No token or invalid token' });
+    }
+
+    const role = (req.user.user_role || '').toString().toUpperCase();
+    if (role === 'WORKER' || role === 'ADMIN') return next();
+
+    // Authenticated but not enough permissions
+    return res.status(403).json({ error: 'Forbidden: employees only' });
+  } catch (err) {
+    console.error('verifyAdmin error:', err);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 module.exports = Util;
