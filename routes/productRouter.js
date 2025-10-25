@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const util = require('../utils/index')
 
-// Import Error Handler
-const utilHandler = require('../utils/index')
-
 // Import Controllers
 const productController = require('../controllers/productController')
 
@@ -13,13 +10,13 @@ const productController = require('../controllers/productController')
 ********************/
 
 // Get Product list
-router.get('/', productController.getProductList);
+router.get('/', util.verifyUser, productController.getProductList);
 
 // Get Product details
-router.get('/:id', productController.getProductDetails)
+router.get('/:id', util.verifyUser, productController.getProductDetails)
 
 // Get Product Process
-router.get('/:id/process', productController.getProductProcess)
+router.get('/:id/process', util.verifyUser, util.verifyWorker, productController.getProductProcess)
 
 /********************
  * POST routes

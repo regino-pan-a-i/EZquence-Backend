@@ -13,22 +13,22 @@ const orderController = require('../controllers/orderController')
 ********************/
 
 // Get today's Order list
-router.get('/', (req, res) => {
-    res.send('Welcome to the Order Router');
+router.get('/', util.verifyUser, (req, res) => {
+    res.send({"message":'Welcome to the Order Router'});
 });
 
 // Get today's Order list
-router.get('/today', orderController.getDailyOrderList)
+router.get('/today', util.verifyUser, util.verifyWorker, orderController.getDailyOrderList)
 
 // Get Order list by date range
-router.get('/dateRange', orderController.getOrderListByDateRange)
+router.get('/dateRange', util.verifyUser, util.verifyAdmin, orderController.getOrderListByDateRange)
 
 
 // Get Order details
-router.get('/:id', orderController.getOrderDetails)
+router.get('/:id', util.verifyUser, util.verifyWorker, orderController.getOrderDetails)
 
 // Get Order status
-router.get('/:id/status', ()=>{})
+router.get('/:id/status', util.verifyUser, util.verifyWorker, ()=>{})
 
 /********************
  * POST routes
@@ -46,7 +46,7 @@ router.post('/createOrder', orderController.createOrder)
 router.put('/:id', ()=>{})
 
 // Update Order status
-router.put('/:id/status', ()=>{})
+router.put('/:id/status', util.verifyUser, util.verifyWorker, ()=>{})
 
 /********************
  * DELETE routes
