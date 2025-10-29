@@ -12,12 +12,18 @@ const dotenv = require('dotenv');
 dotenv.config();
 const productRouter = require('./routes/productRouter')
 const orderRouter = require('./routes/orderRouter')
+const cors = require('cors');
+
 
 /********************
  * Middleware
 ********************/
 app.use(express.json());
 
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  credentials: true
+}));
 /********************
  * GET Routes
 ********************/
