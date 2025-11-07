@@ -51,15 +51,12 @@ orderModel.getOrderListByDateRange = async (startDate, endDate = new Date().toIS
 
     try{
 
-        console.log(startDate)
-        console.log(endDate)
         const { data, error } = await supabase
             .from('order')
             .select('*')
             .gte('dateCreated', startDate)  
             .lt('dateCreated', endDate)
             .order('dateCreated', { ascending: true });
-        console.log(data)
         return data
     } catch (error) {
         throw error;
