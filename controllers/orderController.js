@@ -13,7 +13,7 @@ orderController.getDailyOrderList = async (req, res, next) => {
         const date = new Date()
         date.setHours(0, 0, 0, 0) // Set to 12 AM (midnight)
         const startDate = date.toISOString()
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
         let data = await orderModel.getOrderListByDateRange(startDate);
         res.status(200).json({
             success: true,
@@ -31,7 +31,7 @@ orderController.getDailyOrderList = async (req, res, next) => {
 
 orderController.getOrderListByDateRange = async (req, res, next) => {
     try {
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
 
         let startDate = req.query.start
         let endDate = req.query.end
@@ -63,7 +63,7 @@ orderController.getOrderListByDateRange = async (req, res, next) => {
 orderController.getOrderDetails = async (req, res, next) => {
     try {
         const { id } = req.params
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
         let data = await orderModel.getOrderDetails(id);
         res.status(200).json({
             success: true,
@@ -80,7 +80,7 @@ orderController.getOrderDetails = async (req, res, next) => {
 
 orderController.createOrder = async (req, res, next) =>{
     try {
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
         const orderData = req.body
         let data = await orderModel.createOrder(orderData);
         res.status(200).json({

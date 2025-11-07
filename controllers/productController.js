@@ -10,7 +10,7 @@ const productController = {};
 
 productController.getProductList = async (req, res, next) => {
     try {
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
         let data = await productModel.getProductListByCompanyId(companyId);
         res.status(200).json({
             success: true,
@@ -27,7 +27,7 @@ productController.getProductList = async (req, res, next) => {
 
 productController.getProcessList = async (req, res, next) => {
     try {
-        const { companyId } = 1
+        const { companyId } = req.user.user_company
         let data = await productModel.getProcessListByCompanyId(companyId);
         res.status(200).json({
             success: true,
@@ -45,7 +45,8 @@ productController.getProcessList = async (req, res, next) => {
 productController.getProductDetails = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -78,7 +79,8 @@ productController.getProductDetails = async (req, res, next) => {
 productController.getProductProcess = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -111,6 +113,7 @@ productController.getProductProcess = async (req, res, next) => {
 productController.createProduct = async (req, res, next) => {
     try {
         const productData = req.body;
+        const { companyId } = req.user.user_company
 
         // Basic validation
         if (!productData.name || !productData.price) {
@@ -139,6 +142,7 @@ productController.createProduct = async (req, res, next) => {
 productController.createProcess = async (req, res, next) => {
     try {
         const processData = req.body;
+        const { companyId } = req.user.user_company
 
         // Basic validation
         if (!processData.name || !processData.details) {
@@ -168,7 +172,8 @@ productController.updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -203,7 +208,8 @@ productController.updateProcess = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -237,7 +243,8 @@ productController.updateProcess = async (req, res, next) => {
 productController.deleteProcessByProductId = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -262,7 +269,8 @@ productController.deleteProcessByProductId = async (req, res, next) => {
 productController.deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        
+        const { companyId } = req.user.user_company
+
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -288,7 +296,8 @@ productController.deleteProduct = async (req, res, next) => {
 productController.searchProducts = async (req, res, next) => {
     try {
         const { query } = req.query;
-        
+        const { companyId } = req.user.user_company
+
         if (!query) {
             return res.status(400).json({
                 success: false,
