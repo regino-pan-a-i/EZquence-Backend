@@ -62,7 +62,6 @@ productController.getProductDetails = async (req, res, next) => {
                 error: 'Product not found'
             });
         }
-
         res.status(200).json({
             success: true,
             data: data[0]
@@ -88,7 +87,7 @@ productController.getProductProcess = async (req, res, next) => {
             });
         }
 
-        let data = await productModel.getProcessByProductId(id);
+        let data = await processModel.getProcessByProductId(id);
         
         if (!data || data.length === 0) {
             return res.status(404).json({
@@ -96,7 +95,6 @@ productController.getProductProcess = async (req, res, next) => {
                 error: 'Process not found'
             });
         }
-
         res.status(200).json({
             success: true,
             data: data[0]
