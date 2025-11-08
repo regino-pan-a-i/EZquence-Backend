@@ -44,7 +44,7 @@ productModel.getProductDetails = async (id) =>{
     try {
         let { data, error } = await supabase
         .from('product')
-        .select('*')
+        .select('*, productImage ( productId, imageURL )')        
         .eq('productId', id)
         if (error) throw error;
         return data;
