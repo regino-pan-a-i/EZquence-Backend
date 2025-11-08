@@ -107,7 +107,7 @@ materialModel.searchMaterials = async (query) => {
     }
 }
 
-materialModel.getMaterialsByCategory = async (companyId) => {
+materialModel.getMaterialsByProcessId = async (companyId) => {
     try {
         const { data, error } = await supabase
             .from('material')
