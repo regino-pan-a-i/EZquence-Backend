@@ -2,6 +2,8 @@
  * Require Statements
 ************************************/ 
 const supabase = require('../database/connect')
+const materialModel = require('./material')
+
 
 const processModel = {}
 
@@ -39,8 +41,15 @@ processModel.getProcessByProductId = async (productId) =>{
             .eq('productId', productId);
         
         if (error) throw error;
+
+        const materials = await materialModel.getMaterialsByMaterialList(data[0].processId)
+
+        if (materials)
+            data[0].materials = materials
+    
         return data;
     } catch (error) {
+        console.log(error)
         throw error;
     }
 }

@@ -16,6 +16,17 @@ const materialModel = {}
 *  }
 */
 
+/*
+*   Material List schema
+* materialList{
+*   processId,
+*   materialId,
+*   quantity,
+*   units,
+*   companyId
+* }
+*/
+
 
 materialModel.getMaterialListByCompanyId = async (companyId) => {
     try {
@@ -121,5 +132,45 @@ materialModel.getMaterialsByProcessId = async (companyId) => {
     }
 }
 
+
+materialModel.getMaterialsByMaterialList = async (processId) =>{
+    try {
+        const { data, error } = await supabase
+            .from('materialList')
+            .select(`
+                processId,
+                materialId,
+                quantityNeeded,
+                unitsNeeded,
+                material:materialId (
+                    materialId,
+                    name,
+                    quantityInStock,
+                    units,
+                    companyId,
+                    expirationDate
+                )
+            `)
+            .eq('processId', processId);
+        
+        if (error) throw error;
+        
+        // Flatten the structure to merge material details with materialList data
+        const flattenedData = data.map(item => ({
+            processId: item.processId,
+            materialId: item.materialId,
+            quantityNeeded: item.quantityNeeded,
+            units: item.unitsNeeded,
+            name: item.material?.name,
+            quantityInStock: item.material?.quantityInStock,
+            materialUnits: item.material?.units,
+            companyId: item.material?.companyId
+        }));
+        
+        return flattenedData;
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports = materialModel;
