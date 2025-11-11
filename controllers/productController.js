@@ -206,7 +206,6 @@ productController.updateProcess = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -227,7 +226,7 @@ productController.updateProcess = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'Process updated successfully',
-            data: data
+            data: Array.isArray(data) ? data[0] : data
         });
     }
     catch (error) {

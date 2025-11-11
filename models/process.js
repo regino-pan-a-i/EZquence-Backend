@@ -76,13 +76,50 @@ processModel.createProcess = async (processData) => {
 
 processModel.updateProcess = async (id, processData) => {
     try {
+        // Separate materials from process data
+        const { materials, ...processFields } = processData;
+        
+        // Update the process table (only process-specific fields)
         const { data, error } = await supabase
             .from('process')
-            .update(processData)
+            .update(processFields)
             .eq('productId', id)
             .select();
         
         if (error) throw error;
+        
+        // If materials array is provided, update the materialList
+        if (materials && Array.isArray(materials) && materials.length > 0) {
+            const processId = data[0].processId;
+            
+            // Delete existing material list entries for this process
+            const { error: deleteError } = await supabase
+                .from('materialList')
+                .delete()
+                .eq('processId', processId);
+            
+            if (deleteError) throw deleteError;
+            
+            // Insert updated material list entries
+            const materialListEntries = materials.map(material => ({
+                processId: processId,
+                materialId: material.materialId,
+                quantityNeeded: material.quantityNeeded,
+                unitsNeeded: material.units,
+                companyId: material.companyId
+            }));
+            
+            const { error: insertError } = await supabase
+                .from('materialList')
+                .insert(materialListEntries);
+            
+            if (insertError) throw insertError;
+            
+            // Fetch the updated process with materials to return
+            const updatedProcess = await processModel.getProcessByProductId(id);
+            return updatedProcess;
+        }
+        
         return data;
 
     } catch (error) {
