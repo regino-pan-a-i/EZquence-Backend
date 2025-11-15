@@ -2,6 +2,7 @@
  * Require Statements
 ************************************/ 
 const supabase = require('../database/connect')
+const orderModel = require('./order')
 
 const materialModel = {}
 
@@ -168,6 +169,103 @@ materialModel.getMaterialsByMaterialList = async (processId) =>{
         }));
         
         return flattenedData;
+    } catch (error) {
+        throw error;
+    }
+}
+
+materialModel.getDailyMaterialNeeds = async () => {
+    try {
+        // Get today's product needs
+        const productNeeds = await orderModel.getDailyProductNeeds();
+
+        // If no products needed, return empty array
+        if (!productNeeds || productNeeds.length === 0) {
+            return [];
+        }
+
+        // Object to accumulate material needs
+        const materialNeedsMap = {};
+
+        // Process each product
+        for (const product of productNeeds) {
+            const productId = product.productId;
+            const productQuantityNeeded = product.quantityNeeded;
+
+            try {
+                // Get the process for this product directly using Supabase
+                const { data: processData, error: processError } = await supabase
+                    .from('process')
+                    .select('*')
+                    .eq('productId', productId);
+                
+                if (processError) throw processError;
+                
+                // Skip if no process found
+                if (!processData || processData.length === 0) {
+                    continue;
+                }
+
+                const process = processData[0];
+                const processId = process.processId;
+                const productsPerBatch = process.productsPerBatch || 1;
+
+                // Get materials for this process directly using Supabase
+                const { data: materialsData, error: materialsError } = await supabase
+                    .from('materialList')
+                    .select(`
+                        processId,
+                        materialId,
+                        quantityNeeded,
+                        unitsNeeded,
+                        material:materialId (
+                            materialId,
+                            name,
+                            quantityInStock,
+                            units,
+                            companyId
+                        )
+                    `)
+                    .eq('processId', processId);
+                
+                if (materialsError) throw materialsError;
+
+                // Skip if no materials defined
+                if (!materialsData || materialsData.length === 0) {
+                    continue;
+                }
+
+                // Calculate material needs for this product
+                for (const item of materialsData) {
+                    const materialId = item.materialId;
+                    const quantityPerBatch = item.quantityNeeded || 0;
+                    
+                    // Formula: (quantityNeeded / productsPerBatch) * productQuantityNeeded
+                    const materialQuantityNeeded = (quantityPerBatch / productsPerBatch) * productQuantityNeeded;
+
+                    // Accumulate in the map
+                    if (materialNeedsMap[materialId]) {
+                        materialNeedsMap[materialId].quantityNeeded += materialQuantityNeeded;
+                    } else {
+                        materialNeedsMap[materialId] = {
+                            materialId: materialId,
+                            materialName: item.material?.name || 'Unknown Material',
+                            quantityInStock: item.material?.quantityInStock || 0,
+                            quantityNeeded: materialQuantityNeeded,
+                            units: item.unitsNeeded || item.material?.units || 'units'
+                        };
+                    }
+                }
+            } catch (error) {
+                // Log error but continue processing other products
+                console.error(`Error processing product ${productId}:`, error.message);
+                continue;
+            }
+        }
+
+        // Convert map to array
+        const result = Object.values(materialNeedsMap);
+        return result;
     } catch (error) {
         throw error;
     }

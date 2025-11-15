@@ -3,6 +3,7 @@
 ************************************/
 const productModel = require('../models/product')
 const processModel = require('../models/process')
+const orderModel = require('../models/order')
 
 
 const productController = {};
@@ -65,6 +66,23 @@ productController.getProductDetails = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: data[0]
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+productController.getCurrentProductNeed = async (req, res, next) => {
+    try{ 
+        let data = await orderModel.getDailyProductNeeds();
+        
+        res.status(200).json({
+            success: true,
+            data: data
         });
     }
     catch (error) {

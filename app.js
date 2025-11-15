@@ -12,6 +12,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const productRouter = require('./routes/productRouter')
 const orderRouter = require('./routes/orderRouter')
+const inventoryRouter = require('./routes/inventoryRouter');
 const cors = require('cors');
 
 
@@ -34,6 +35,8 @@ app.get('/', (req, res) => {
 app.use('/product', productRouter);
 
 app.use('/order', orderRouter);
+
+app.use('/inventory', inventoryRouter)
 
 
 /***********************************

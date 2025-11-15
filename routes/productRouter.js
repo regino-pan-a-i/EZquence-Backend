@@ -12,6 +12,9 @@ const productController = require('../controllers/productController')
 // Get Product list
 router.get('/', util.verifyUser, productController.getProductList);
 
+// Get today's product needs
+router.get('/needs/today', util.verifyUser, util.verifyWorker, productController.getCurrentProductNeed);
+
 // Get Product details
 router.get('/:id', util.verifyUser, productController.getProductDetails)
 
