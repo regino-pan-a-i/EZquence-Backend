@@ -13,6 +13,7 @@ dotenv.config();
 const productRouter = require('./routes/productRouter')
 const orderRouter = require('./routes/orderRouter')
 const inventoryRouter = require('./routes/inventoryRouter');
+const processRouter = require('./routes/processRouter');
 const cors = require('cors');
 
 
@@ -37,6 +38,8 @@ app.use('/product', productRouter);
 app.use('/order', orderRouter);
 
 app.use('/inventory', inventoryRouter)
+
+app.use('/process', processRouter)
 
 
 /***********************************

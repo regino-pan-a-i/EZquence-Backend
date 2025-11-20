@@ -24,6 +24,8 @@ router.get('/:id', util.verifyUser, inventoryController.getMaterialDetails);
 // Search materials
 router.get('/search/query', util.verifyUser, inventoryController.searchMaterials);
 
+// Get all processes that use this mateerial
+router.get('/:id/processes', util.verifyUser, inventoryController.getProcessesByMaterialId )
 
 /********************
  * POST routes

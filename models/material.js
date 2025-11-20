@@ -22,8 +22,8 @@ const materialModel = {}
 * materialList{
 *   processId,
 *   materialId,
-*   quantity,
-*   units,
+*   quantityNeeded,
+*   unitsNeeded,
 *   companyId
 * }
 */
@@ -132,7 +132,6 @@ materialModel.getMaterialsByProcessId = async (companyId) => {
         throw error;
     }
 }
-
 
 materialModel.getMaterialsByMaterialList = async (processId) =>{
     try {
@@ -269,6 +268,83 @@ materialModel.getDailyMaterialNeeds = async () => {
     } catch (error) {
         throw error;
     }
+}
+
+materialModel.addMaterialToMaterialList = async (editedMaterial) => {
+    try {
+        const { data, error } = await supabase
+            .from('materialList')
+            .insert([editedMaterial])
+            .select();
+        
+        if (error) throw error;
+        return data;
+
+    } catch (error) {
+        throw error;
+    }    
+}
+
+materialModel.updateMaterialListByMaterialId = async (processId, materialId, editedMaterial) => {
+    try {
+        const { data, error } = await supabase
+            .from('materialList')
+            .update(editedMaterial)
+            .eq('materialId', materialId)
+            .eq('processId', processId)
+            .select();
+        
+        if (error) throw error;
+        return data;
+
+    } catch (error) {
+        throw error;
+    }    
+}
+
+materialModel.deleteMaterialFromMaterialList = async (processId, materialId) => {
+    try {
+        const { data, error } = await supabase
+            .from('materialList')
+            .delete()
+            .eq('processId', processId)
+            .eq('materialId', materialId);
+        
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+materialModel.getProcessesByMaterialId = async (materialId) => {
+
+    try {
+        const { data, error } = await supabase
+            .from('materialList')
+            .select(`
+                process:processId (
+                    processId,
+                    name
+                ),
+                quantityNeeded,
+                unitsNeeded
+            `)
+            .eq('materialId', materialId);
+        
+        if (error) throw error;
+        
+        const flattenedData = data.map(item => ({
+            processId: item.process?.processId,
+            processName: item.process?.name,
+            quantityNeeded: item.quantityNeeded,
+            units: item.unitsNeeded
+
+        }));
+        return flattenedData;
+    } catch (error) {
+        throw error;
+    }    
 }
 
 module.exports = materialModel;

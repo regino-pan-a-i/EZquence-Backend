@@ -157,9 +157,9 @@ productController.createProduct = async (req, res, next) => {
 
 productController.createProcess = async (req, res, next) => {
     try {
+        const { id } = req.params;
         const processData = req.body;
         const companyId = req.user.user_company
-
         // Basic validation
         if (!processData.name || !processData.details) {
             return res.status(400).json({
@@ -168,8 +168,7 @@ productController.createProcess = async (req, res, next) => {
             });
         }
 
-        let data = await processModel.createProcess(processData);
-        
+        let data = await processModel.createProcess(processData, companyId);
         res.status(201).json({
             success: true,
             message: 'Process created successfully',
@@ -177,6 +176,7 @@ productController.createProcess = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -187,7 +187,8 @@ productController.createProcess = async (req, res, next) => {
 productController.updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const updateData = req.body;
+        const bodyData = req.body;
+        const {imageURL, ...productData} =bodyData
         const companyId = req.user.user_company
 
         if (!id) {
@@ -197,7 +198,11 @@ productController.updateProduct = async (req, res, next) => {
             });
         }
 
-        let data = await productModel.updateProduct(id, updateData);
+        let data = await productModel.updateProduct(id, productData);
+
+        if (imageURL) {
+           await productModel.updateImage(id, { imageURL });
+        }
         
         if (!data || data.length === 0) {
             return res.status(404).json({
@@ -213,6 +218,7 @@ productController.updateProduct = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -248,6 +254,7 @@ productController.updateProcess = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message

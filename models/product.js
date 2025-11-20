@@ -105,6 +105,22 @@ productModel.updateProduct = async (id, updateData) => {
     }
 }
 
+productModel.updateImage = async (id, imageData) => {
+        try {
+        const { data, error } = await supabase
+            .from('productImage')
+            .update(imageData)
+            .eq('productId', id)
+            .select();
+        
+        if (error) throw error;
+        return data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
 productModel.deleteProduct = async (id) => {
     try {
         const { data, error } = await supabase

@@ -54,7 +54,7 @@ processModel.getProcessByProductId = async (productId) =>{
     }
 }
 
-processModel.createProcess = async (processData) => {
+processModel.createProcess = async (processData, companyId) => {
     try {
         const { data, error } = await supabase
             .from('process')
@@ -63,7 +63,7 @@ processModel.createProcess = async (processData) => {
                 details: processData.details,
                 productsPerBatch: processData.productsPerBatch,
                 productId: processData.productId,
-                companyId: processData.companyId
+                companyId: companyId
             }])
             .select();
         

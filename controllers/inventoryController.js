@@ -71,7 +71,6 @@ inventoryController.createMaterial = async (req, res, next) => {
 
         // Add companyId to material data
         materialData.companyId = companyId;
-
         // Basic validation
         if (!materialData.name || materialData.quantityInStock === undefined) {
             return res.status(400).json({
@@ -81,7 +80,6 @@ inventoryController.createMaterial = async (req, res, next) => {
         }
 
         let data = await materialModel.createMaterial(materialData);
-        
         res.status(201).json({
             success: true,
             message: 'Material created successfully',
@@ -89,6 +87,7 @@ inventoryController.createMaterial = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -281,5 +280,42 @@ inventoryController.getDailyMaterialNeeds = async (req, res, next) => {
         });
     }
 }
+
+/**
+ * Get all processes that use a specific material
+ */
+inventoryController.getProcessesByMaterialId = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: 'Material ID is required'
+            });
+        }
+
+        let data = await materialModel.getProcessesByMaterialId(id);
+        
+        if (!data || data.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Material not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
 
 module.exports = inventoryController;
