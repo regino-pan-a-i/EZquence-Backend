@@ -19,14 +19,23 @@ const productModel = {}
 
 productModel.getProductListByCompanyId = async (companyId) => {
     try {
+        if (!companyId) {
+            throw new Error('companyId is required');
+        }
+        
         const { data, error } = await supabase
             .from('product')
-            .select('*')
-            .eq('companyId', companyId);
+            .select('*, productImage ( productId, imageURL )')
+            .eq('companyId', BigInt(companyId));
         
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }        
+        
         return data;
     } catch (error) {
+        console.error('Product list error:', error);
         throw error;
     }
 }
@@ -35,7 +44,7 @@ productModel.getProductDetails = async (id) =>{
     try {
         let { data, error } = await supabase
         .from('product')
-        .select('*')
+        .select('*, productImage ( productId, imageURL )')        
         .eq('productId', id)
         if (error) throw error;
         return data;
@@ -59,13 +68,17 @@ productModel.getProductName = async (id) =>{
 
 productModel.createProduct = async (productData) => {
     try {
+        if (!productData.companyId) {
+            throw new Error('companyId is required');
+        }
+        
         const { data, error } = await supabase
             .from('product')
             .insert([{
                 name: productData.name,
                 price: productData.price,
                 details: productData.details,
-                companyId: productData.companyId
+                companyId: BigInt(productData.companyId)
             }])
             .select();
         
@@ -81,6 +94,22 @@ productModel.updateProduct = async (id, updateData) => {
         const { data, error } = await supabase
             .from('product')
             .update(updateData)
+            .eq('productId', id)
+            .select();
+        
+        if (error) throw error;
+        return data;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+productModel.updateImage = async (id, imageData) => {
+        try {
+        const { data, error } = await supabase
+            .from('productImage')
+            .update(imageData)
             .eq('productId', id)
             .select();
         
@@ -122,10 +151,14 @@ productModel.searchProducts = async (query) => {
 
 productModel.getProductsByCategory = async (companyId) => {
     try {
+        if (!companyId) {
+            throw new Error('companyId is required');
+        }
+        
         const { data, error } = await supabase
             .from('product')
             .select('*')
-            .eq('companyId', companyId);
+            .eq('companyId', BigInt(companyId));
         
         if (error) throw error;
         return data;
