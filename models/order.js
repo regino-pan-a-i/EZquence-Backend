@@ -185,6 +185,77 @@ orderModel.createProductList = async (productData) =>{
     }
 }
 
+orderModel.getDailyProductNeeds = async () => {
+    try {
+        // Set up date range for today
+        const date = new Date();
+        date.setHours(0, 0, 0, 0); // Start of day
+        const startDate = date.toISOString();
+        
+        const endDate = new Date();
+        endDate.setHours(23, 59, 59, 999); // End of day
+        const endDateISO = endDate.toISOString();
+
+        // Get today's orders that are paid but not completed
+        const { data: orders, error: ordersError } = await supabase
+            .from('order')
+            .select('orderId')
+            .gte('dateCreated', startDate)
+            .lt('dateCreated', endDateISO)
+            .eq('paid', true)
+            .neq('status', 'COMPLETED');
+
+        if (ordersError) throw ordersError;
+
+        // If no orders found, return empty array
+        if (!orders || orders.length === 0) {
+            return [];
+        }
+
+        // Extract order IDs
+        const orderIds = orders.map(order => order.orderId);
+
+        // Get all product list items for these orders with product details
+        const { data: orderProducts, error: productsError } = await supabase
+            .from('orderProductList')
+            .select('productId, quantity, product(productId, name)')
+            .in('orderId', orderIds);
+
+        if (productsError) throw productsError;
+
+        // If no products found, return empty array
+        if (!orderProducts || orderProducts.length === 0) {
+            return [];
+        }
+
+        // Aggregate quantities by product using reduce
+        const productMap = orderProducts.reduce((acc, item) => {
+            const productId = item.productId;
+            const productName = item.product?.name || 'Unknown Product';
+            const quantity = item.quantity || 0;
+
+            if (acc[productId]) {
+                acc[productId].quantityNeeded += quantity;
+            } else {
+                acc[productId] = {
+                    productId: productId,
+                    productName: productName,
+                    quantityNeeded: quantity
+                };
+            }
+
+            return acc;
+        }, {});
+
+        // Convert object to array
+        const result = Object.values(productMap);
+
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 
 

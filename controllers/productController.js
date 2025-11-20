@@ -3,6 +3,7 @@
 ************************************/
 const productModel = require('../models/product')
 const processModel = require('../models/process')
+const orderModel = require('../models/order')
 
 
 const productController = {};
@@ -10,7 +11,7 @@ const productController = {};
 
 productController.getProductList = async (req, res, next) => {
     try {
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
         let data = await productModel.getProductListByCompanyId(companyId);
         res.status(200).json({
             success: true,
@@ -27,7 +28,7 @@ productController.getProductList = async (req, res, next) => {
 
 productController.getProcessList = async (req, res, next) => {
     try {
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
         let data = await productModel.getProcessListByCompanyId(companyId);
         res.status(200).json({
             success: true,
@@ -45,7 +46,7 @@ productController.getProcessList = async (req, res, next) => {
 productController.getProductDetails = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -62,7 +63,6 @@ productController.getProductDetails = async (req, res, next) => {
                 error: 'Product not found'
             });
         }
-
         res.status(200).json({
             success: true,
             data: data[0]
@@ -76,10 +76,27 @@ productController.getProductDetails = async (req, res, next) => {
     }
 }
 
+productController.getCurrentProductNeed = async (req, res, next) => {
+    try{ 
+        let data = await orderModel.getDailyProductNeeds();
+        
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
 productController.getProductProcess = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -88,7 +105,7 @@ productController.getProductProcess = async (req, res, next) => {
             });
         }
 
-        let data = await productModel.getProcessByProductId(id);
+        let data = await processModel.getProcessByProductId(id);
         
         if (!data || data.length === 0) {
             return res.status(404).json({
@@ -96,7 +113,6 @@ productController.getProductProcess = async (req, res, next) => {
                 error: 'Process not found'
             });
         }
-
         res.status(200).json({
             success: true,
             data: data[0]
@@ -113,7 +129,7 @@ productController.getProductProcess = async (req, res, next) => {
 productController.createProduct = async (req, res, next) => {
     try {
         const productData = req.body;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         // Basic validation
         if (!productData.name || !productData.price) {
@@ -141,9 +157,9 @@ productController.createProduct = async (req, res, next) => {
 
 productController.createProcess = async (req, res, next) => {
     try {
+        const { id } = req.params;
         const processData = req.body;
-        const { companyId } = req.user.user_company
-
+        const companyId = req.user.user_company
         // Basic validation
         if (!processData.name || !processData.details) {
             return res.status(400).json({
@@ -152,8 +168,7 @@ productController.createProcess = async (req, res, next) => {
             });
         }
 
-        let data = await processModel.createProcess(processData);
-        
+        let data = await processModel.createProcess(processData, companyId);
         res.status(201).json({
             success: true,
             message: 'Process created successfully',
@@ -161,6 +176,7 @@ productController.createProcess = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -171,8 +187,9 @@ productController.createProcess = async (req, res, next) => {
 productController.updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const updateData = req.body;
-        const { companyId } = req.user.user_company
+        const bodyData = req.body;
+        const {imageURL, ...productData} =bodyData
+        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -181,7 +198,11 @@ productController.updateProduct = async (req, res, next) => {
             });
         }
 
-        let data = await productModel.updateProduct(id, updateData);
+        let data = await productModel.updateProduct(id, productData);
+
+        if (imageURL) {
+           await productModel.updateImage(id, { imageURL });
+        }
         
         if (!data || data.length === 0) {
             return res.status(404).json({
@@ -197,6 +218,7 @@ productController.updateProduct = async (req, res, next) => {
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -208,7 +230,6 @@ productController.updateProcess = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        const { companyId } = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -229,10 +250,11 @@ productController.updateProcess = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'Process updated successfully',
-            data: data
+            data: Array.isArray(data) ? data[0] : data
         });
     }
     catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -243,7 +265,7 @@ productController.updateProcess = async (req, res, next) => {
 productController.deleteProcessByProductId = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -269,7 +291,7 @@ productController.deleteProcessByProductId = async (req, res, next) => {
 productController.deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         if (!id) {
             return res.status(400).json({
@@ -296,7 +318,7 @@ productController.deleteProduct = async (req, res, next) => {
 productController.searchProducts = async (req, res, next) => {
     try {
         const { query } = req.query;
-        const { companyId } = req.user.user_company
+        const companyId = req.user.user_company
 
         if (!query) {
             return res.status(400).json({
