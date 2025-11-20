@@ -1,7 +1,7 @@
 /***********************************
  * Require Statements
-************************************/
-const materialModel = require('../models/material')
+ ************************************/
+const materialModel = require('../models/material');
 
 const inventoryController = {};
 
@@ -9,313 +9,302 @@ const inventoryController = {};
  * Get all materials (inventory) for the company
  */
 inventoryController.getMaterialList = async (req, res, next) => {
-    try {
-        const companyId = req.user.user_company;
-        let data = await materialModel.getMaterialListByCompanyId(companyId);
-        res.status(200).json({
-            success: true,
-            data: data
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
+  try {
+    const companyId = req.user.user_company;
+    let data = await materialModel.getMaterialListByCompanyId(companyId);
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Get details of a specific material
  */
 inventoryController.getMaterialDetails = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material ID is required'
-            });
-        }
-
-        let data = await materialModel.getMaterialDetails(id);
-        
-        if (!data || data.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Material not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: data[0]
-        });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material ID is required',
+      });
     }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+
+    let data = await materialModel.getMaterialDetails(id);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Material not found',
+      });
     }
-}
+
+    res.status(200).json({
+      success: true,
+      data: data[0],
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Create a new material in inventory
  */
 inventoryController.createMaterial = async (req, res, next) => {
-    try {
-        const materialData = req.body;
-        const companyId = req.user.user_company;
+  try {
+    const materialData = req.body;
+    const companyId = req.user.user_company;
 
-        // Add companyId to material data
-        materialData.companyId = companyId;
-        // Basic validation
-        if (!materialData.name || materialData.quantityInStock === undefined) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material name and quantity in stock are required'
-            });
-        }
+    // Add companyId to material data
+    materialData.companyId = companyId;
+    // Basic validation
+    if (!materialData.name || materialData.quantityInStock === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material name and quantity in stock are required',
+      });
+    }
 
-        let data = await materialModel.createMaterial(materialData);
-        res.status(201).json({
-            success: true,
-            message: 'Material created successfully',
-            data: data
-        });
-    }
-    catch (error) {
-        console.log(error)
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
+    let data = await materialModel.createMaterial(materialData);
+    res.status(201).json({
+      success: true,
+      message: 'Material created successfully',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Update an existing material in inventory
  */
 inventoryController.updateMaterial = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material ID is required'
-            });
-        }
-
-
-        let data = await materialModel.updateMaterial(id, updateData);
-        
-        if (!data || data.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Material not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Material updated successfully',
-            data: data
-        });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material ID is required',
+      });
     }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+
+    let data = await materialModel.updateMaterial(id, updateData);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Material not found',
+      });
     }
-}
+
+    res.status(200).json({
+      success: true,
+      message: 'Material updated successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Delete a material from inventory
  */
 inventoryController.deleteMaterial = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material ID is required'
-            });
-        }
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material ID is required',
+      });
+    }
 
-        let data = await materialModel.deleteMaterial(id);
-        
-        res.status(200).json({
-            success: true,
-            message: 'Material deleted successfully'
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
+    let data = await materialModel.deleteMaterial(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Material deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Search materials in inventory
  */
 inventoryController.searchMaterials = async (req, res, next) => {
-    try {
-        const { query } = req.query;
-        const companyId = req.user.user_company;
+  try {
+    const { query } = req.query;
+    const companyId = req.user.user_company;
 
-        if (!query) {
-            return res.status(400).json({
-                success: false,
-                error: 'Search query is required'
-            });
-        }
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query is required',
+      });
+    }
 
-        let data = await materialModel.searchMaterials(query);
-        
-        res.status(200).json({
-            success: true,
-            data: data
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
+    let data = await materialModel.searchMaterials(query);
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Adjust material quantity (for inventory adjustments)
  */
 inventoryController.adjustMaterialQuantity = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { adjustment, reason } = req.body;
-        const companyId = req.user.user_company;
+  try {
+    const { id } = req.params;
+    const { adjustment, reason } = req.body;
+    const companyId = req.user.user_company;
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material ID is required'
-            });
-        }
-
-        if (adjustment === undefined || adjustment === null) {
-            return res.status(400).json({
-                success: false,
-                error: 'Adjustment value is required'
-            });
-        }
-
-        // Get current material details
-        let material = await materialModel.getMaterialDetails(id);
-        
-        if (!material || material.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Material not found'
-            });
-        }
-
-        // Calculate new quantity
-        const currentQuantity = material[0].quantityInStock || 0;
-        const newQuantity = currentQuantity + adjustment;
-
-        if (newQuantity < 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'Adjustment would result in negative inventory'
-            });
-        }
-
-        // Update the material with new quantity
-        let data = await materialModel.updateMaterial(id, {
-            quantityInStock: newQuantity
-        });
-
-        res.status(200).json({
-            success: true,
-            message: 'Material quantity adjusted successfully',
-            data: {
-                ...data[0],
-                previousQuantity: currentQuantity,
-                adjustment: adjustment,
-                reason: reason || 'Manual adjustment'
-            }
-        });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material ID is required',
+      });
     }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+
+    if (adjustment === undefined || adjustment === null) {
+      return res.status(400).json({
+        success: false,
+        error: 'Adjustment value is required',
+      });
     }
-}
+
+    // Get current material details
+    let material = await materialModel.getMaterialDetails(id);
+
+    if (!material || material.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Material not found',
+      });
+    }
+
+    // Calculate new quantity
+    const currentQuantity = material[0].quantityInStock || 0;
+    const newQuantity = currentQuantity + adjustment;
+
+    if (newQuantity < 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Adjustment would result in negative inventory',
+      });
+    }
+
+    // Update the material with new quantity
+    let data = await materialModel.updateMaterial(id, {
+      quantityInStock: newQuantity,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Material quantity adjusted successfully',
+      data: {
+        ...data[0],
+        previousQuantity: currentQuantity,
+        adjustment: adjustment,
+        reason: reason || 'Manual adjustment',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Get daily material needs based on today's orders
  */
 inventoryController.getDailyMaterialNeeds = async (req, res, next) => {
-    try {
-        let data = await materialModel.getDailyMaterialNeeds();
-        
-        res.status(200).json({
-            success: true,
-            data: data
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
+  try {
+    let data = await materialModel.getDailyMaterialNeeds();
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Get all processes that use a specific material
  */
 inventoryController.getProcessesByMaterialId = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: 'Material ID is required'
-            });
-        }
-
-        let data = await materialModel.getProcessesByMaterialId(id);
-        
-        if (!data || data.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Material not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: data
-        });
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Material ID is required',
+      });
     }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
 
+    let data = await materialModel.getProcessesByMaterialId(id);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Material not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
 
 module.exports = inventoryController;
