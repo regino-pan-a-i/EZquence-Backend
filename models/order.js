@@ -42,12 +42,14 @@ orderModel.getOrderlListByCompanyId = async companyId => {
 };
 
 orderModel.getOrderListByDateRange = async (
+  companyId,
   startDate,
   endDate = new Date().toISOString()
 ) => {
   const { data, error } = await supabase
     .from('order')
     .select('*')
+    .eq('companyId', companyId)
     .gte('dateCreated', startDate)
     .lt('dateCreated', endDate)
     .order('dateCreated', { ascending: true });
@@ -65,7 +67,7 @@ orderModel.getOrderDetails = async id => {
   let products = await orderModel.getOrderProductList(id);
 
   let order = {
-    order: data,
+    order: data[0],
     products: products,
   };
   return order;
