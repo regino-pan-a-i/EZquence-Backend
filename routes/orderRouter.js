@@ -29,7 +29,7 @@ router.get(
 router.get(
   '/dateRange',
   util.verifyUser,
-  util.verifyAdmin,
+  util.verifyWorker,
   orderController.getOrderListByDateRange
 );
 

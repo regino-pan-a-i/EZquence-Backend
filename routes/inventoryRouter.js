@@ -76,4 +76,57 @@ router.delete(
   inventoryController.deleteMaterial
 );
 
+/********************
+ * Inventory Transaction Routes
+ ********************/
+
+// GET: Get all transactions for the company
+router.get(
+  '/transactions',
+  util.verifyUser,
+  inventoryController.getTransactionList
+);
+
+// GET: Get specific transaction details
+router.get(
+  '/transactions/:id',
+  util.verifyUser,
+  inventoryController.getTransactionDetails
+);
+
+// GET: Get transactions by product ID
+router.get(
+  '/transactions/product/:productId',
+  util.verifyUser,
+  inventoryController.getTransactionsByProduct
+);
+
+// POST: Create new transaction
+router.post(
+  '/transactions',
+  util.verifyUser,
+  inventoryController.createTransaction
+);
+
+// PUT: Update transaction
+router.put(
+  '/transactions/:id',
+  util.verifyUser,
+  inventoryController.updateTransaction
+);
+
+// DELETE: Delete transaction
+router.delete(
+  '/transactions/:id',
+  util.verifyUser,
+  inventoryController.deleteTransaction
+);
+
+// GET: Get current stock for a product
+router.get(
+  '/stock/:productId',
+  util.verifyUser,
+  inventoryController.getProductStock
+);
+
 module.exports = router;

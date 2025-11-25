@@ -2,6 +2,7 @@
  * Require Statements
  ************************************/
 const materialModel = require('../models/material');
+const inventoryModel = require('../models/inventory');
 
 const inventoryController = {};
 
@@ -294,6 +295,221 @@ inventoryController.getProcessesByMaterialId = async (req, res, next) => {
         error: 'Material not found',
       });
     }
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/********************
+ * Inventory Transaction CRUD Operations
+ ********************/
+
+/**
+ * Get all inventory transactions for the company
+ */
+inventoryController.getTransactionList = async (req, res, next) => {
+  try {
+    const companyId = req.user.user_company;
+    let data = await inventoryModel.getTransactionsByCompanyId(companyId);
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get details of a specific inventory transaction
+ */
+inventoryController.getTransactionDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction ID is required',
+      });
+    }
+
+    let data = await inventoryModel.getTransactionById(id);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaction not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: data[0],
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get inventory transactions by product ID
+ */
+inventoryController.getTransactionsByProduct = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Product ID is required',
+      });
+    }
+
+    let data = await inventoryModel.getTransactionsByProductId(productId);
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Create a new inventory transaction
+ */
+inventoryController.createTransaction = async (req, res, next) => {
+  try {
+    const transactionData = req.body;
+    const companyId = req.user.user_company;
+
+    // Add companyId to transaction data
+    transactionData.companyId = companyId;
+
+    // Basic validation
+    if (!transactionData.quantity || !transactionData.productId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Quantity and product ID are required',
+      });
+    }
+
+    let data = await inventoryModel.createTransaction(transactionData);
+    res.status(201).json({
+      success: true,
+      message: 'Transaction created successfully',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Update an existing inventory transaction
+ */
+inventoryController.updateTransaction = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction ID is required',
+      });
+    }
+
+    let data = await inventoryModel.updateTransaction(id, updateData);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaction not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Transaction updated successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Delete an inventory transaction
+ */
+inventoryController.deleteTransaction = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction ID is required',
+      });
+    }
+
+    let data = await inventoryModel.deleteTransaction(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Transaction deleted successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get current stock for a product
+ */
+inventoryController.getProductStock = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+    const { date } = req.query; // Optional query parameter for specific date
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Product ID is required',
+      });
+    }
+
+    let data = await inventoryModel.getProductStock(productId, date);
 
     res.status(200).json({
       success: true,
