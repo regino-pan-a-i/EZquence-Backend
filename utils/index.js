@@ -1,14 +1,14 @@
-const Util = {}
-const jwt = require("jsonwebtoken")
+const Util = {};
+const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
 /* ****************************************
  * Middleware For Handling Errors
- * Wrap other function in this for 
+ * Wrap other function in this for
  * General Error Handling
  **************************************** */
 Util.handleErrors = fn => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next)
+  Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 Util.verifyUser = (req, res, next) => {
@@ -20,11 +20,10 @@ Util.verifyUser = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(401).json({ error: 'Invalid token' });
   }
-}
-
+};
 
 Util.verifyAdmin = (req, res, next) => {
   try {
@@ -42,7 +41,7 @@ Util.verifyAdmin = (req, res, next) => {
     console.error('verifyAdmin error:', err);
     return res.status(401).json({ error: 'Invalid token' });
   }
-}
+};
 Util.verifyWorker = (req, res, next) => {
   try {
     // If verifyUser middleware didn't run or token was missing/invalid
@@ -59,5 +58,5 @@ Util.verifyWorker = (req, res, next) => {
     console.error('verifyAdmin error:', err);
     return res.status(401).json({ error: 'Invalid token' });
   }
-}
+};
 module.exports = Util;

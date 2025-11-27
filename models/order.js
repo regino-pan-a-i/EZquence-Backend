@@ -1,262 +1,237 @@
 /***********************************
  * Require Statements
-************************************/ 
-const supabase = require('../database/connect')
-const productModel = require('./product')
+ ************************************/
+const supabase = require('../database/connect');
+const productModel = require('./product');
 
-const orderModel = {}
+const orderModel = {};
 
 /*
-*   Order schema
-*
-* order{
-*   orderId,
-*   orderTotal,
-*   dateCreated,
-*   status,
-*   paid,
-*   notes,
-*   userId,
-*   dateDelivered,
-*   companyId
-* }
-* 
-* orderProductList{
-*   orderId,
-*   productId,
-*   quantity,
-*   unitPrice,
-*   total,
-*   companyId
-* }
-*/
+ *   Order schema
+ *
+ * order{
+ *   orderId,
+ *   orderTotal,
+ *   dateCreated,
+ *   status,
+ *   paid,
+ *   notes,
+ *   userId,
+ *   dateDelivered,
+ *   companyId
+ * }
+ *
+ * orderProductList{
+ *   orderId,
+ *   productId,
+ *   quantity,
+ *   unitPrice,
+ *   total,
+ *   companyId
+ * }
+ */
 
+orderModel.getOrderlListByCompanyId = async companyId => {
+  const { data, error } = await supabase
+    .from('order')
+    .select('*')
+    .eq('companyId', companyId);
 
+  if (error) throw error;
+  return data;
+};
 
-orderModel.getOrderlListByCompanyId = async (companyId) => {
-    try {
-        const { data, error } = await supabase
-            .from('order')
-            .select('*')
-            .eq('companyId', companyId);
-        
-        if (error) throw error;
-        return data;
-    } catch (error) {
-        throw error;
-    }
-}
+orderModel.getOrderListByDateRange = async (
+  companyId,
+  startDate,
+  endDate = new Date().toISOString()
+) => {
+  const { data, error } = await supabase
+    .from('order')
+    .select('*')
+    .eq('companyId', companyId)
+    .gte('dateCreated', startDate)
+    .lt('dateCreated', endDate)
+    .order('dateCreated', { ascending: true });
+  if (error) throw error;
+  return data;
+};
 
-orderModel.getOrderListByDateRange = async (startDate, endDate = new Date().toISOString()) =>{
+orderModel.getOrderDetails = async id => {
+  let { data, error } = await supabase
+    .from('order')
+    .select('*')
+    .eq('orderId', id);
+  if (error) throw error;
 
-    try{
+  let products = await orderModel.getOrderProductList(id);
 
-        const { data, error } = await supabase
-            .from('order')
-            .select('*')
-            .gte('dateCreated', startDate)  
-            .lt('dateCreated', endDate)
-            .order('dateCreated', { ascending: true });
-        return data
-    } catch (error) {
-        throw error;
-    }
-}
+  let order = {
+    order: data[0],
+    products: products,
+  };
+  return order;
+};
 
-orderModel.getOrderDetails = async (id) =>{
-    try {
-        let { data, error } = await supabase
-        .from('order')
-        .select('*')
-        .eq('orderId', id)
-        if (error) throw error;
-        
-        let products =  await orderModel.getOrderProductList(id)
-        
-        let order = {
-            "order": data,
-            "products" : products
-        }
-        return order;
-    } catch (error) {
-        throw error;
-    }
-}
+orderModel.getOrderProductList = async id => {
+  let { data, error } = await supabase
+    .from('orderProductList')
+    .select('*')
+    .eq('orderId', id);
+  if (error) throw error;
 
-orderModel.getOrderProductList = async (id) => {
-    try {
-        let { data, error } = await supabase
-        .from('orderProductList')
-        .select('*')
-        .eq('orderId', id)
-        if (error) throw error;
-        
-        let products = []
-        for (const product of data ){
-            let prodcutId = product['productId']
-            
-            product['productName'] = await productModel.getProductName(prodcutId)
-            products.push(product)
-        }
+  let products = [];
+  for (const product of data) {
+    let prodcutId = product['productId'];
 
-        return products;
-    } catch (error) {
-        throw error;
-    } 
-}
+    product['productName'] = await productModel.getProductName(prodcutId);
+    products.push(product);
+  }
 
-orderModel.createOrder = async (orderData) => {
-    try {
-        const { data, error } = await supabase
-            .from('order')
-            .insert([{
-                orderTotal: orderData.orderTotal,
-                dateCreated: orderData.dateCreated,
-                status: orderData.status,
-                paid: orderData.paid,
-                notes: orderData.notes,
-                userId: orderData.userId,
-                dateDelivered: orderData.dateDelivered,
-                companyId: orderData.companyId
-            }])
-            .select();
+  return products;
+};
 
-        for (let product of orderData.productList){
-            product['orderId'] = data[0]['orderId']
-            orderModel.createProductList(product)
-        }
+orderModel.createOrder = async orderData => {
+  const { data, error } = await supabase
+    .from('order')
+    .insert([
+      {
+        orderTotal: orderData.orderTotal,
+        dateCreated: orderData.dateCreated,
+        status: orderData.status,
+        paid: orderData.paid,
+        notes: orderData.notes,
+        userId: orderData.userId,
+        dateDelivered: orderData.dateDelivered,
+        companyId: orderData.companyId,
+      },
+    ])
+    .select();
 
-        if (error) throw error;
-        return data;
-    } catch (error) {
-        throw error;
-    }
-}
+  for (let product of orderData.productList) {
+    product['orderId'] = data[0]['orderId'];
+    orderModel.createProductList(product);
+  }
+
+  if (error) throw error;
+  return data;
+};
+
+orderModel.getOrderStatus = async id => {
+  const { data, error } = await supabase
+    .from('order')
+    .select('status')
+    .eq('orderId', id);
+
+  if (error) throw error;
+  return data;
+};
 
 orderModel.updateOrder = async (id, updateData) => {
-    try {
-        const { data, error } = await supabase
-            .from('order')
-            .update(updateData)
-            .eq('orderId', id)
-            .select();
-        
-        if (error) throw error;
-        return data;
+  const { data, error } = await supabase
+    .from('order')
+    .update(updateData)
+    .eq('orderId', id)
+    .select();
 
-    } catch (error) {
-        throw error;
-    }
-}
+  if (error) throw error;
+  return data;
+};
 
-orderModel.deleteOrder = async (id) => {
-    try {
-        const { data, error } = await supabase
-            .from('order')
-            .delete()
-            .eq('orderId', id);
-        
-        if (error) throw error;
-        return data;
-    } catch (error) {
-        throw error;
-    }
-}
+orderModel.deleteOrder = async id => {
+  const { data, error } = await supabase
+    .from('order')
+    .delete()
+    .eq('orderId', id);
 
-orderModel.createProductList = async (productData) =>{
-    try {
+  if (error) throw error;
+  return data;
+};
 
-        const { data, error } = await supabase
-            .from('orderProductList')
-            .insert([{
-                orderId: productData.orderId,
-                productId: productData.productId,
-                quantity: productData.quantity,
-                unitPrice: productData.unitPrice,
-                total: productData.total,
-                companyId: productData.companyId
-            }])
-            .select();
-        
-        if (error) throw error;
-        return data;
-    } catch (error) {
-        throw error;
-    }
-}
+orderModel.createProductList = async productData => {
+  const { data, error } = await supabase
+    .from('orderProductList')
+    .insert([
+      {
+        orderId: productData.orderId,
+        productId: productData.productId,
+        quantity: productData.quantity,
+        unitPrice: productData.unitPrice,
+        total: productData.total,
+        companyId: productData.companyId,
+      },
+    ])
+    .select();
+
+  if (error) throw error;
+  return data;
+};
 
 orderModel.getDailyProductNeeds = async () => {
-    try {
-        // Set up date range for today
-        const date = new Date();
-        date.setHours(0, 0, 0, 0); // Start of day
-        const startDate = date.toISOString();
-        
-        const endDate = new Date();
-        endDate.setHours(23, 59, 59, 999); // End of day
-        const endDateISO = endDate.toISOString();
+  // Set up date range for today
+  const date = new Date();
+  date.setHours(0, 0, 0, 0); // Start of day
+  const startDate = date.toISOString();
 
-        // Get today's orders that are paid but not completed
-        const { data: orders, error: ordersError } = await supabase
-            .from('order')
-            .select('orderId')
-            .gte('dateCreated', startDate)
-            .lt('dateCreated', endDateISO)
-            .eq('paid', true)
-            .neq('status', 'COMPLETED');
+  const endDate = new Date();
+  endDate.setHours(23, 59, 59, 999); // End of day
+  const endDateISO = endDate.toISOString();
 
-        if (ordersError) throw ordersError;
+  // Get today's orders that are paid but not completed
+  const { data: orders, error: ordersError } = await supabase
+    .from('order')
+    .select('orderId')
+    .gte('dateCreated', startDate)
+    .lt('dateCreated', endDateISO)
+    .eq('paid', true)
+    .neq('status', 'COMPLETED');
 
-        // If no orders found, return empty array
-        if (!orders || orders.length === 0) {
-            return [];
-        }
+  if (ordersError) throw ordersError;
 
-        // Extract order IDs
-        const orderIds = orders.map(order => order.orderId);
+  // If no orders found, return empty array
+  if (!orders || orders.length === 0) {
+    return [];
+  }
 
-        // Get all product list items for these orders with product details
-        const { data: orderProducts, error: productsError } = await supabase
-            .from('orderProductList')
-            .select('productId, quantity, product(productId, name)')
-            .in('orderId', orderIds);
+  // Extract order IDs
+  const orderIds = orders.map(order => order.orderId);
 
-        if (productsError) throw productsError;
+  // Get all product list items for these orders with product details
+  const { data: orderProducts, error: productsError } = await supabase
+    .from('orderProductList')
+    .select('productId, quantity, product(productId, name)')
+    .in('orderId', orderIds);
 
-        // If no products found, return empty array
-        if (!orderProducts || orderProducts.length === 0) {
-            return [];
-        }
+  if (productsError) throw productsError;
 
-        // Aggregate quantities by product using reduce
-        const productMap = orderProducts.reduce((acc, item) => {
-            const productId = item.productId;
-            const productName = item.product?.name || 'Unknown Product';
-            const quantity = item.quantity || 0;
+  // If no products found, return empty array
+  if (!orderProducts || orderProducts.length === 0) {
+    return [];
+  }
 
-            if (acc[productId]) {
-                acc[productId].quantityNeeded += quantity;
-            } else {
-                acc[productId] = {
-                    productId: productId,
-                    productName: productName,
-                    quantityNeeded: quantity
-                };
-            }
+  // Aggregate quantities by product using reduce
+  const productMap = orderProducts.reduce((acc, item) => {
+    const productId = item.productId;
+    const productName = item.product?.name || 'Unknown Product';
+    const quantity = item.quantity || 0;
 
-            return acc;
-        }, {});
-
-        // Convert object to array
-        const result = Object.values(productMap);
-
-        return result;
-    } catch (error) {
-        throw error;
+    if (acc[productId]) {
+      acc[productId].quantityNeeded += quantity;
+    } else {
+      acc[productId] = {
+        productId: productId,
+        productName: productName,
+        quantityNeeded: quantity,
+      };
     }
-}
 
+    return acc;
+  }, {});
 
+  // Convert object to array
+  const result = Object.values(productMap);
 
+  return result;
+};
 
 module.exports = orderModel;
