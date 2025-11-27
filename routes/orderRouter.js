@@ -42,7 +42,12 @@ router.get(
 );
 
 // Get Order status
-router.get('/:id/status', util.verifyUser, util.verifyWorker, () => {});
+router.get(
+  '/:id/status',
+  util.verifyUser,
+  util.verifyWorker,
+  orderController.getOrderStatus
+);
 
 /********************
  * POST routes
@@ -56,16 +61,31 @@ router.post('/createOrder', orderController.createOrder);
  ********************/
 
 // Update Order details
-router.put('/:id', () => {});
+router.put(
+  '/:id',
+  util.verifyUser,
+  util.verifyWorker,
+  orderController.updateOrder
+);
 
 // Update Order status
-router.put('/:id/status', util.verifyUser, util.verifyWorker, () => {});
+router.put(
+  '/:id/status',
+  util.verifyUser,
+  util.verifyWorker,
+  orderController.updateOrderStatus
+);
 
 /********************
  * DELETE routes
  ********************/
 
 // Delete Order by id
-router.delete('/:id/delete', () => {});
+router.delete(
+  '/:id/delete',
+  util.verifyUser,
+  util.verifyWorker,
+  orderController.deleteOrder
+);
 
 module.exports = router;

@@ -117,6 +117,16 @@ orderModel.createOrder = async orderData => {
   return data;
 };
 
+orderModel.getOrderStatus = async id => {
+  const { data, error } = await supabase
+    .from('order')
+    .select('status')
+    .eq('orderId', id);
+
+  if (error) throw error;
+  return data;
+};
+
 orderModel.updateOrder = async (id, updateData) => {
   const { data, error } = await supabase
     .from('order')
