@@ -15,6 +15,7 @@ const orderRouter = require('./routes/orderRouter');
 const inventoryRouter = require('./routes/inventoryRouter');
 const processRouter = require('./routes/processRouter');
 const companyRouter = require('./routes/companyRouter');
+const cartRouter = require('./routes/cartRouter');
 const cors = require('cors');
 
 /********************
@@ -45,6 +46,8 @@ app.use('/inventory', inventoryRouter);
 app.use('/process', processRouter);
 
 app.use('/company', companyRouter);
+
+app.use('/cart', cartRouter);
 
 /***********************************
  * Server Listener
