@@ -35,6 +35,19 @@ const cartModel = {};
  ************************************/
 
 /**
+ * Get cart by cartId
+ */
+cartModel.getCartById = async cartId => {
+  const { data, error } = await supabase
+    .from('cart')
+    .select('*')
+    .eq('cartId', cartId)
+    .limit(1);
+
+  if (error) throw error;
+  return data.length > 0 ? data[0] : null;
+};
+/**
  * Get cart by userId - returns active cart (PENDING status)
  */
 cartModel.getCartByUserId = async userId => {

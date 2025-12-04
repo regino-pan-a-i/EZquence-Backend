@@ -54,7 +54,7 @@ router.get(
  ********************/
 
 // Create Order
-router.post('/createOrder', orderController.createOrder);
+router.post('/createOrder', util.verifyUser, orderController.createOrder);
 
 /********************
  * PUT routes

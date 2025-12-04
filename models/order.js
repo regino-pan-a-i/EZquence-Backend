@@ -97,17 +97,15 @@ orderModel.createOrder = async orderData => {
     .insert([
       {
         orderTotal: orderData.orderTotal,
-        dateCreated: orderData.dateCreated,
-        status: orderData.status,
         paid: orderData.paid,
         notes: orderData.notes,
         userId: orderData.userId,
-        dateDelivered: orderData.dateDelivered,
+        expectedDeliveryDate: orderData.expectedDeliveryDate,
         companyId: orderData.companyId,
       },
     ])
     .select();
-
+  console.log(error)
   for (let product of orderData.productList) {
     product['orderId'] = data[0]['orderId'];
     orderModel.createProductList(product);

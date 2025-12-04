@@ -54,11 +54,26 @@ cartController.getCartDetails = async (req, res) => {
       });
     }
 
-    let data = await cartModel.getCartDetails(id);
+    let cart = await cartModel.getCartById(id);
+
+    if (!cart) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          cart: null,
+          items: [],
+        },
+      });
+    }
+    // Get cart details with items
+    let items = await cartModel.getCartItems(cart.cartId);
 
     res.status(200).json({
       success: true,
-      data: data,
+      data: {
+        cart: cart,
+        items: items,
+      },
     });
   } catch (error) {
     res.status(500).json({
