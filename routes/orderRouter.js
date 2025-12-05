@@ -41,6 +41,13 @@ router.get(
   orderController.getOrderDetails
 );
 
+// Get all orders for a specific customer
+router.get(
+  '/customer/:id',
+  util.verifyUser,
+  orderController.getOrdersByCustomerId
+);
+
 // Get Order status
 router.get(
   '/:id/status',
