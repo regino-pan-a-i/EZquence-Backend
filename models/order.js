@@ -73,6 +73,29 @@ orderModel.getOrderDetails = async id => {
   return order;
 };
 
+orderModel.getOrdersByUserId = async userId => {
+  // Get all orders for the user
+  let { data, error } = await supabase
+    .from('order')
+    .select('*')
+    .eq('userId', userId)
+    .order('dateCreated', { ascending: false });
+  
+  if (error) throw error;
+
+  // Get products for each order
+  let ordersWithProducts = [];
+  for (const order of data) {
+    let products = await orderModel.getOrderProductList(order.orderId);
+    ordersWithProducts.push({
+      order: order,
+      products: products,
+    });
+  }
+
+  return ordersWithProducts;
+};
+
 orderModel.getOrderProductList = async id => {
   let { data, error } = await supabase
     .from('orderProductList')

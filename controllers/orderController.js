@@ -74,6 +74,32 @@ orderController.getOrderDetails = async (req, res) => {
   }
 };
 
+orderController.getOrdersByCustomerId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Customer ID is required',
+      });
+    }
+
+    let data = await orderModel.getOrdersByUserId(id);
+
+    console.log(data)
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 orderController.createOrder = async (req, res) => {
   try {
     const userId = req.user.usr_id;
@@ -177,7 +203,7 @@ orderController.createOrder = async (req, res) => {
       data: data,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       success: false,
       error: error.message,
