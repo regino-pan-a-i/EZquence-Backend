@@ -52,7 +52,7 @@ orderModel.getOrderListByDateRange = async (
     .eq('companyId', companyId)
     .gte('dateCreated', startDate)
     .lt('dateCreated', endDate)
-    .order('dateCreated', { ascending: true });
+    .order('dateCreated', { descending: true });
   if (error) throw error;
   return data;
 };
@@ -80,7 +80,7 @@ orderModel.getOrdersByUserId = async userId => {
     .select('*')
     .eq('userId', userId)
     .order('dateCreated', { ascending: false });
-  
+
   if (error) throw error;
 
   // Get products for each order
@@ -128,7 +128,6 @@ orderModel.createOrder = async orderData => {
       },
     ])
     .select();
-  console.log(error)
   for (let product of orderData.productList) {
     product['orderId'] = data[0]['orderId'];
     orderModel.createProductList(product);
