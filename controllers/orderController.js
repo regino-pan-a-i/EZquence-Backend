@@ -2,10 +2,11 @@
  * Require Statements
  ************************************/
 const orderModel = require('../models/order');
+const cartModel = require('../models/cart');
 
 const orderController = {};
 
-orderController.getDailyOrderList = async (req, res, next) => {
+orderController.getDailyOrderList = async (req, res) => {
   try {
     const date = new Date();
     date.setHours(0, 0, 0, 0); // Set to 12 AM (midnight)
@@ -24,7 +25,7 @@ orderController.getDailyOrderList = async (req, res, next) => {
   }
 };
 
-orderController.getOrderListByDateRange = async (req, res, next) => {
+orderController.getOrderListByDateRange = async (req, res) => {
   try {
     const companyId = req.user.user_company;
 
@@ -57,7 +58,7 @@ orderController.getOrderListByDateRange = async (req, res, next) => {
   }
 };
 
-orderController.getOrderDetails = async (req, res, next) => {
+orderController.getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
     let data = await orderModel.getOrderDetails(id);
@@ -73,11 +74,19 @@ orderController.getOrderDetails = async (req, res, next) => {
   }
 };
 
-orderController.createOrder = async (req, res, next) => {
+orderController.getOrdersByCustomerId = async (req, res) => {
   try {
-    const companyId = req.user.user_company;
-    const orderData = req.body;
-    let data = await orderModel.createOrder(orderData);
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Customer ID is required',
+      });
+    }
+
+    let data = await orderModel.getOrdersByUserId(id);
+
     res.status(200).json({
       success: true,
       data: data,
@@ -90,10 +99,121 @@ orderController.createOrder = async (req, res, next) => {
   }
 };
 
+orderController.createOrder = async (req, res) => {
+  try {
+    const userId = req.user.usr_id;
+    const companyId = req.user.user_company;
+    const { cartId, deliveryDate, notes } = req.body;
+
+    // Validate required fields
+    if (!cartId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cart ID is required',
+      });
+    }
+
+    let cart = await cartModel.getCartById(cartId);
+
+    if (!cart) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          cart: null,
+          items: [],
+        },
+      });
+    }
+    // Get cart details with items
+    let items = await cartModel.getCartItems(cart.cartId);
+    // Get cart details with items
+    const cartDetails = {
+      cart: cart,
+      items: items,
+    };
+
+    if (!cartDetails || !cartDetails.cart) {
+      return res.status(404).json({
+        success: false,
+        error: 'Cart not found',
+      });
+    }
+
+    // Verify cart belongs to user and is PENDING
+    if (cartDetails.cart.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized to access this cart',
+      });
+    }
+
+    if (cartDetails.cart.cartStatus !== 'PENDING') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cart is not in PENDING status',
+      });
+    }
+
+    // Check if cart has items
+    if (!cartDetails.items || cartDetails.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cart is empty',
+      });
+    }
+
+    // Build product list and calculate order total
+    let orderTotal = 0;
+    const productList = cartDetails.items.map(item => {
+      const price = item.product?.price || 0;
+      const quantity = item.quantity;
+      const total = price * quantity;
+      orderTotal += total;
+
+      return {
+        productId: item.productId,
+        quantity: quantity,
+        unitPrice: price,
+        total: total,
+        companyId: companyId,
+      };
+    });
+
+    // Create order object
+    const orderData = {
+      orderTotal: orderTotal,
+      paid: false,
+      notes: notes || cartDetails.cart.notes || null,
+      userId: userId,
+      expectedDeliveryDate: deliveryDate ? new Date(deliveryDate) : new Date(),
+      companyId: companyId,
+      productList: productList,
+    };
+
+    // Create the order
+    let data = await orderModel.createOrder(orderData);
+
+    // Mark cart as COMPLETED
+    await cartModel.updateCartStatus(cartId, 'COMPLETED');
+
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully from cart',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 /**
  * Get order status
  */
-orderController.getOrderStatus = async (req, res, next) => {
+orderController.getOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -128,7 +248,7 @@ orderController.getOrderStatus = async (req, res, next) => {
 /**
  * Update order details
  */
-orderController.updateOrder = async (req, res, next) => {
+orderController.updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -165,7 +285,7 @@ orderController.updateOrder = async (req, res, next) => {
 /**
  * Update order status
  */
-orderController.updateOrderStatus = async (req, res, next) => {
+orderController.updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -209,7 +329,7 @@ orderController.updateOrderStatus = async (req, res, next) => {
 /**
  * Delete order
  */
-orderController.deleteOrder = async (req, res, next) => {
+orderController.deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
 

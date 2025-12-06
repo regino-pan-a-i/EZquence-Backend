@@ -52,7 +52,7 @@ orderModel.getOrderListByDateRange = async (
     .eq('companyId', companyId)
     .gte('dateCreated', startDate)
     .lt('dateCreated', endDate)
-    .order('dateCreated', { ascending: true });
+    .order('dateCreated', { descending: true });
   if (error) throw error;
   return data;
 };
@@ -71,6 +71,29 @@ orderModel.getOrderDetails = async id => {
     products: products,
   };
   return order;
+};
+
+orderModel.getOrdersByUserId = async userId => {
+  // Get all orders for the user
+  let { data, error } = await supabase
+    .from('order')
+    .select('*')
+    .eq('userId', userId)
+    .order('dateCreated', { ascending: false });
+
+  if (error) throw error;
+
+  // Get products for each order
+  let ordersWithProducts = [];
+  for (const order of data) {
+    let products = await orderModel.getOrderProductList(order.orderId);
+    ordersWithProducts.push({
+      order: order,
+      products: products,
+    });
+  }
+
+  return ordersWithProducts;
 };
 
 orderModel.getOrderProductList = async id => {
@@ -97,17 +120,14 @@ orderModel.createOrder = async orderData => {
     .insert([
       {
         orderTotal: orderData.orderTotal,
-        dateCreated: orderData.dateCreated,
-        status: orderData.status,
         paid: orderData.paid,
         notes: orderData.notes,
         userId: orderData.userId,
-        dateDelivered: orderData.dateDelivered,
+        expectedDeliveryDate: orderData.expectedDeliveryDate,
         companyId: orderData.companyId,
       },
     ])
     .select();
-
   for (let product of orderData.productList) {
     product['orderId'] = data[0]['orderId'];
     orderModel.createProductList(product);

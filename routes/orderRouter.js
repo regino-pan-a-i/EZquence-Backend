@@ -41,6 +41,13 @@ router.get(
   orderController.getOrderDetails
 );
 
+// Get all orders for a specific customer
+router.get(
+  '/customer/:id',
+  util.verifyUser,
+  orderController.getOrdersByCustomerId
+);
+
 // Get Order status
 router.get(
   '/:id/status',
@@ -54,7 +61,7 @@ router.get(
  ********************/
 
 // Create Order
-router.post('/createOrder', orderController.createOrder);
+router.post('/createOrder', util.verifyUser, orderController.createOrder);
 
 /********************
  * PUT routes
