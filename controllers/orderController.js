@@ -87,7 +87,6 @@ orderController.getOrdersByCustomerId = async (req, res) => {
 
     let data = await orderModel.getOrdersByUserId(id);
 
-    console.log(data)
     res.status(200).json({
       success: true,
       data: data,
