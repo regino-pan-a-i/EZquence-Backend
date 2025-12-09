@@ -2,6 +2,7 @@
  * Require Statements
  ************************************/
 const companyModel = require('../models/company');
+const userModel = require('../models/user');
 
 const companyController = {};
 
@@ -77,7 +78,7 @@ companyController.createCompany = async (req, res, _next) => {
     res.status(201).json({
       success: true,
       message: 'Company created successfully',
-      data: data,
+      data: data[0],
     });
   } catch (error) {
     res.status(500).json({
@@ -316,6 +317,7 @@ companyController.createProductionGoal = async (req, res, _next) => {
       data: data,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       success: false,
       error: error.message,
@@ -413,6 +415,338 @@ companyController.getProductionGoalsByDateRange = async (req, res, _next) => {
     res.status(200).json({
       success: true,
       data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/***********************************
+ * User Management Controllers
+ ************************************/
+
+// Set user role
+companyController.setUserRole = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Role is required',
+      });
+    }
+
+    // Validate role enum
+    const validRoles = ['ADMIN', 'WORKER', 'CLIENT'];
+    if (!validRoles.includes(role.toUpperCase())) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid role. Must be ADMIN, WORKER, or CLIENT',
+      });
+    }
+
+    let data = await userModel.updateUserRole(id, role.toUpperCase());
+
+    res.status(200).json({
+      success: true,
+      message: 'User role updated successfully',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Set user pending status
+companyController.setUserPending = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    let data = await userModel.updateUserApprovalStatus(id, 'PENDING');
+
+    res.status(200).json({
+      success: true,
+      message: 'User approval status set to pending',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Worker joins company
+companyController.workerJoinCompany = async (req, res, _next) => {
+  try {
+    const { companyId, userId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company ID is required',
+      });
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    // Verify company exists
+    const company = await companyModel.getCompanyById(companyId);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        error: 'Company not found',
+      });
+    }
+
+    // Update user's companyId
+    let data = await userModel.updateUserCompany(userId, companyId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Worker joined company successfully',
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Client joins company
+companyController.clientJoinCompany = async (req, res, _next) => {
+  try {
+    const { companyId, userId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company ID is required',
+      });
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    // Verify company exists
+    const company = await companyModel.getCompanyById(companyId);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        error: 'Company not found',
+      });
+    }
+
+    // Update user's companyId
+    let data = await userModel.updateUserCompany(userId, companyId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Client joined company successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Admin joins company
+companyController.adminJoinCompany = async (req, res, _next) => {
+  try {
+    const { companyId, userId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company ID is required',
+      });
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    // Verify company exists
+    const company = await companyModel.getCompanyById(companyId);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        error: 'Company not found',
+      });
+    }
+
+    // Update user's companyId
+    let data = await userModel.updateUserCompany(userId, companyId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Admin joined company successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Approve worker
+companyController.approveWorker = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    let data = await userModel.updateUserApprovalStatus(id, 'APPROVED');
+
+    res.status(200).json({
+      success: true,
+      message: 'Worker approved successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Reject worker
+companyController.rejectWorker = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+
+    let data = await userModel.updateUserApprovalStatus(id, 'REJECTED');
+
+    res.status(200).json({
+      success: true,
+      message: 'Worker rejected successfully',
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Get all workers in a company
+companyController.getCompanyWorkers = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company ID is required',
+      });
+    }
+
+    let data = await userModel.getUsersByCompanyId(id);
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+// Get user's approval status
+companyController.getUserApprovalStatus = async (req, res, _next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.usr_id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID is required',
+      });
+    }
+    if (id != userId) {
+      return res.status(401).json({
+        succes: false,
+        error: 'Users can only see their own approval status',
+      });
+    }
+
+    let user = await userModel.getUserById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        approvalStatus: user.approvalStatus,
+      },
     });
   } catch (error) {
     res.status(500).json({
