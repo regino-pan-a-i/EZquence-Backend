@@ -124,6 +124,8 @@ productController.createProduct = async (req, res, next) => {
     const productData = req.body;
     const companyId = req.user.user_company;
 
+    productData.companyId = companyId;
+
     // Basic validation
     if (!productData.name || !productData.price) {
       return res.status(400).json({
@@ -137,7 +139,7 @@ productController.createProduct = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Product created successfully',
-      data: data,
+      data: data[0],
     });
   } catch (error) {
     res.status(500).json({
@@ -152,6 +154,8 @@ productController.createProcess = async (req, res, next) => {
     const { id } = req.params;
     const processData = req.body;
     const companyId = req.user.user_company;
+    
+    processData.productId = id;
     // Basic validation
     if (!processData.name || !processData.details) {
       return res.status(400).json({

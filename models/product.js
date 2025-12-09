@@ -64,7 +64,7 @@ productModel.createProduct = async productData => {
         name: productData.name,
         price: productData.price,
         details: productData.details,
-        companyId: BigInt(productData.companyId),
+        companyId: productData.companyId,
       },
     ])
     .select();
