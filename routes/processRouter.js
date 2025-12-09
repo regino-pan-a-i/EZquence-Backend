@@ -21,7 +21,7 @@ router.get(
   util.verifyUser,
   util.verifyUser,
   processController.getProcessList
-)
+);
 
 /********************
  * POST routes

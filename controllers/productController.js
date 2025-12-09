@@ -7,7 +7,7 @@ const orderModel = require('../models/order');
 
 const productController = {};
 
-productController.getProductList = async (req, res, next) => {
+productController.getProductList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
     let data = await productModel.getProductListByCompanyId(companyId);
@@ -23,7 +23,7 @@ productController.getProductList = async (req, res, next) => {
   }
 };
 
-productController.getProcessList = async (req, res, next) => {
+productController.getProcessList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
     let data = await productModel.getProcessListByCompanyId(companyId);
@@ -39,7 +39,7 @@ productController.getProcessList = async (req, res, next) => {
   }
 };
 
-productController.getProductDetails = async (req, res, next) => {
+productController.getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.user_company;
@@ -71,7 +71,7 @@ productController.getProductDetails = async (req, res, next) => {
   }
 };
 
-productController.getCurrentProductNeed = async (req, res, next) => {
+productController.getCurrentProductNeed = async (req, res) => {
   try {
     let data = await orderModel.getDailyProductNeeds();
 
@@ -87,7 +87,7 @@ productController.getCurrentProductNeed = async (req, res, next) => {
   }
 };
 
-productController.getProductProcess = async (req, res, next) => {
+productController.getProductProcess = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.user_company;
@@ -119,7 +119,7 @@ productController.getProductProcess = async (req, res, next) => {
   }
 };
 
-productController.createProduct = async (req, res, next) => {
+productController.createProduct = async (req, res) => {
   try {
     const productData = req.body;
     const companyId = req.user.user_company;
@@ -149,7 +149,7 @@ productController.createProduct = async (req, res, next) => {
   }
 };
 
-productController.createProcess = async (req, res, next) => {
+productController.createProcess = async (req, res) => {
   try {
     const { id } = req.params;
     const processData = req.body;
@@ -179,7 +179,7 @@ productController.createProcess = async (req, res, next) => {
   }
 };
 
-productController.updateProduct = async (req, res, next) => {
+productController.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const bodyData = req.body;
@@ -220,7 +220,7 @@ productController.updateProduct = async (req, res, next) => {
   }
 };
 
-productController.updateProcess = async (req, res, next) => {
+productController.updateProcess = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -255,7 +255,7 @@ productController.updateProcess = async (req, res, next) => {
   }
 };
 
-productController.deleteProcessByProductId = async (req, res, next) => {
+productController.deleteProcessByProductId = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.user_company;
@@ -280,7 +280,7 @@ productController.deleteProcessByProductId = async (req, res, next) => {
     });
   }
 };
-productController.deleteProduct = async (req, res, next) => {
+productController.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.user_company;
@@ -306,7 +306,7 @@ productController.deleteProduct = async (req, res, next) => {
   }
 };
 
-productController.searchProducts = async (req, res, next) => {
+productController.searchProducts = async (req, res) => {
   try {
     const { query } = req.query;
     const companyId = req.user.user_company;

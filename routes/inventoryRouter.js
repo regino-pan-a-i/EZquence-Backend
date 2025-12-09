@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const util = require('../utils/index');
 
-// Import Error Handler
-const utilHandler = require('../utils/index');
-
 // Import Controllers
 const inventoryController = require('../controllers/inventoryController');
 

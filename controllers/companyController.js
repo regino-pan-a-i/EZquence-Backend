@@ -317,7 +317,7 @@ companyController.createProductionGoal = async (req, res, _next) => {
       data: data,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
       success: false,
       error: error.message,

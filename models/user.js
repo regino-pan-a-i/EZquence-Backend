@@ -120,4 +120,3 @@ userModel.getUserById = async userId => {
 };
 
 module.exports = userModel;
-

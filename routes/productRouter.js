@@ -4,7 +4,6 @@ const util = require('../utils/index');
 
 // Import Controllers
 const productController = require('../controllers/productController');
-const { verify } = require('jsonwebtoken');
 
 /********************
  * GET routes

@@ -45,7 +45,7 @@ companyModel.createCompany = async companyData => {
       },
     ])
     .select();
-  console.log(error)
+  console.log(error);
   if (error) throw error;
   return data;
 };
@@ -272,6 +272,3 @@ companyModel.getProductionGoalsByDateRange = async (
 };
 
 module.exports = companyModel;
-
-
-

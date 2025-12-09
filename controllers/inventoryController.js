@@ -9,7 +9,7 @@ const inventoryController = {};
 /**
  * Get all materials (inventory) for the company
  */
-inventoryController.getMaterialList = async (req, res, next) => {
+inventoryController.getMaterialList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
     let data = await materialModel.getMaterialListByCompanyId(companyId);
@@ -28,7 +28,7 @@ inventoryController.getMaterialList = async (req, res, next) => {
 /**
  * Get details of a specific material
  */
-inventoryController.getMaterialDetails = async (req, res, next) => {
+inventoryController.getMaterialDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -63,7 +63,7 @@ inventoryController.getMaterialDetails = async (req, res, next) => {
 /**
  * Create a new material in inventory
  */
-inventoryController.createMaterial = async (req, res, next) => {
+inventoryController.createMaterial = async (req, res) => {
   try {
     const materialData = req.body;
     const companyId = req.user.user_company;
@@ -96,7 +96,7 @@ inventoryController.createMaterial = async (req, res, next) => {
 /**
  * Update an existing material in inventory
  */
-inventoryController.updateMaterial = async (req, res, next) => {
+inventoryController.updateMaterial = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -133,7 +133,7 @@ inventoryController.updateMaterial = async (req, res, next) => {
 /**
  * Delete a material from inventory
  */
-inventoryController.deleteMaterial = async (req, res, next) => {
+inventoryController.deleteMaterial = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -161,7 +161,7 @@ inventoryController.deleteMaterial = async (req, res, next) => {
 /**
  * Search materials in inventory
  */
-inventoryController.searchMaterials = async (req, res, next) => {
+inventoryController.searchMaterials = async (req, res) => {
   try {
     const { query } = req.query;
     const companyId = req.user.user_company;
@@ -190,7 +190,7 @@ inventoryController.searchMaterials = async (req, res, next) => {
 /**
  * Adjust material quantity (for inventory adjustments)
  */
-inventoryController.adjustMaterialQuantity = async (req, res, next) => {
+inventoryController.adjustMaterialQuantity = async (req, res) => {
   try {
     const { id } = req.params;
     const { adjustment, reason } = req.body;
@@ -257,7 +257,7 @@ inventoryController.adjustMaterialQuantity = async (req, res, next) => {
 /**
  * Get daily material needs based on today's orders
  */
-inventoryController.getDailyMaterialNeeds = async (req, res, next) => {
+inventoryController.getDailyMaterialNeeds = async (req, res) => {
   try {
     let data = await materialModel.getDailyMaterialNeeds();
 
@@ -276,7 +276,7 @@ inventoryController.getDailyMaterialNeeds = async (req, res, next) => {
 /**
  * Get all processes that use a specific material
  */
-inventoryController.getProcessesByMaterialId = async (req, res, next) => {
+inventoryController.getProcessesByMaterialId = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -315,7 +315,7 @@ inventoryController.getProcessesByMaterialId = async (req, res, next) => {
 /**
  * Get all inventory transactions for the company
  */
-inventoryController.getTransactionList = async (req, res, next) => {
+inventoryController.getTransactionList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
     let data = await inventoryModel.getTransactionsByCompanyId(companyId);
@@ -334,7 +334,7 @@ inventoryController.getTransactionList = async (req, res, next) => {
 /**
  * Get details of a specific inventory transaction
  */
-inventoryController.getTransactionDetails = async (req, res, next) => {
+inventoryController.getTransactionDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -369,7 +369,7 @@ inventoryController.getTransactionDetails = async (req, res, next) => {
 /**
  * Get inventory transactions by product ID
  */
-inventoryController.getTransactionsByProduct = async (req, res, next) => {
+inventoryController.getTransactionsByProduct = async (req, res) => {
   try {
     const { productId } = req.params;
 
@@ -397,7 +397,7 @@ inventoryController.getTransactionsByProduct = async (req, res, next) => {
 /**
  * Create a new inventory transaction
  */
-inventoryController.createTransaction = async (req, res, next) => {
+inventoryController.createTransaction = async (req, res) => {
   try {
     const transactionData = req.body;
     const companyId = req.user.user_company;
@@ -431,7 +431,7 @@ inventoryController.createTransaction = async (req, res, next) => {
 /**
  * Update an existing inventory transaction
  */
-inventoryController.updateTransaction = async (req, res, next) => {
+inventoryController.updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -468,7 +468,7 @@ inventoryController.updateTransaction = async (req, res, next) => {
 /**
  * Delete an inventory transaction
  */
-inventoryController.deleteTransaction = async (req, res, next) => {
+inventoryController.deleteTransaction = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -497,7 +497,7 @@ inventoryController.deleteTransaction = async (req, res, next) => {
 /**
  * Get current stock for a product
  */
-inventoryController.getProductStock = async (req, res, next) => {
+inventoryController.getProductStock = async (req, res) => {
   try {
     const { productId } = req.params;
     const { date } = req.query; // Optional query parameter for specific date
