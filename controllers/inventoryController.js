@@ -3,6 +3,7 @@
  ************************************/
 const materialModel = require('../models/material');
 const inventoryModel = require('../models/inventory');
+const processModel = require('../models/process');
 
 const inventoryController = {};
 
@@ -399,11 +400,17 @@ inventoryController.getTransactionsByProduct = async (req, res) => {
  */
 inventoryController.createTransaction = async (req, res) => {
   try {
-    const transactionData = req.body;
+    const processId = req.body.processId;
+
+    const process = await processModel.getProcessByProcessId(processId);
     const companyId = req.user.user_company;
 
-    // Add companyId to transaction data
-    transactionData.companyId = companyId;
+    const transactionData = {
+      quantity: process.productsPerBatch,
+      productId: process.productId,
+      companyId: companyId,
+      reason: 'PRODUCTION',
+    };
 
     // Basic validation
     if (!transactionData.quantity || !transactionData.productId) {
@@ -414,6 +421,24 @@ inventoryController.createTransaction = async (req, res) => {
     }
 
     let data = await inventoryModel.createTransaction(transactionData);
+
+    // Update material quantities in inventory
+
+    for (const material of process.materials) {
+      const oldMaterialData = await materialModel.getMaterialDetails(
+        material.materialId
+      );
+
+      const newStock = {
+        quantityInStock: Math.max(
+          0,
+          oldMaterialData[0].quantityInStock - material.quantityNeeded
+        ),
+      };
+
+      await materialModel.updateMaterial(material.materialId, newStock);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Transaction created successfully',
