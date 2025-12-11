@@ -10,7 +10,7 @@ const companyController = require('../controllers/companyController');
  ********************/
 
 // Get all companies
-router.get('/', util.verifyUser, companyController.getAllCompanies);
+router.get('/', companyController.getAllCompanies);
 
 // Get all the workers in the current company
 router.get(

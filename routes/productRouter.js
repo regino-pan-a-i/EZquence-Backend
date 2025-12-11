@@ -9,6 +9,9 @@ const productController = require('../controllers/productController');
  * GET routes
  ********************/
 
+// Get Product list by company ID (unauthenticated)
+router.get('/company/:id', productController.getProductsByCompanyId);
+
 // Get Product list
 router.get('/', util.verifyUser, productController.getProductList);
 

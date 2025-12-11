@@ -23,6 +23,31 @@ productController.getProductList = async (req, res) => {
   }
 };
 
+productController.getProductsByCompanyId = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company ID is required',
+      });
+    }
+
+    let data = await productModel.getProductListByCompanyId(id);
+
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 productController.getProcessList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
