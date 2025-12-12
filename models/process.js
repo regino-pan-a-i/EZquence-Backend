@@ -45,6 +45,23 @@ processModel.getProcessByProductId = async productId => {
   return data;
 };
 
+processModel.getProcessByProcessId = async processId => {
+  const { data, error } = await supabase
+    .from('process')
+    .select('*')
+    .eq('processId', processId);
+
+  if (error) throw error;
+
+  const materials = await materialModel.getMaterialsByMaterialList(
+    data[0].processId
+  );
+
+  if (materials) data[0].materials = materials;
+
+  return data[0];
+};
+
 processModel.createProcess = async (processData, companyId) => {
   const { data, error } = await supabase
     .from('process')

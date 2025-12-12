@@ -4,11 +4,13 @@ const util = require('../utils/index');
 
 // Import Controllers
 const productController = require('../controllers/productController');
-const { verify } = require('jsonwebtoken');
 
 /********************
  * GET routes
  ********************/
+
+// Get Product list by company ID (unauthenticated)
+router.get('/company/:id', productController.getProductsByCompanyId);
 
 // Get Product list
 router.get('/', util.verifyUser, productController.getProductList);

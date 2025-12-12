@@ -16,6 +16,13 @@ router.get(
   processController.getProcessMaterials
 );
 
+router.get(
+  '/all',
+  util.verifyUser,
+  util.verifyUser,
+  processController.getProcessList
+);
+
 /********************
  * POST routes
  ********************/
