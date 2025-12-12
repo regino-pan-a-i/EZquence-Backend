@@ -17,6 +17,7 @@ const processRouter = require('./routes/processRouter');
 const companyRouter = require('./routes/companyRouter');
 const cartRouter = require('./routes/cartRouter');
 const customerRouter = require('./routes/customerRouter.js');
+const feedbackRouter = require('./routes/feedbackRouter');
 const cors = require('cors');
 
 /********************
@@ -51,6 +52,8 @@ app.use('/company', companyRouter);
 app.use('/cart', cartRouter);
 
 app.use('/customer', customerRouter);
+
+app.use('/feedback', feedbackRouter);
 
 /***********************************
  * Server Listener
