@@ -45,7 +45,7 @@ companyModel.createCompany = async companyData => {
       },
     ])
     .select();
-
+  console.log(error);
   if (error) throw error;
   return data;
 };
@@ -139,8 +139,8 @@ companyModel.createProductionGoal = async goalData => {
     .insert([
       {
         goalValue: goalData.goalValue,
-        productId: BigInt(goalData.productId),
-        companyId: BigInt(goalData.companyId),
+        productId: goalData.productId,
+        companyId: goalData.companyId,
         effectiveDate: goalData.effectiveDate,
         endDate: goalData.endDate,
       },
@@ -272,6 +272,3 @@ companyModel.getProductionGoalsByDateRange = async (
 };
 
 module.exports = companyModel;
-
-
-

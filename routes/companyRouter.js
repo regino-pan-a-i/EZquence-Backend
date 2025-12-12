@@ -10,13 +10,28 @@ const companyController = require('../controllers/companyController');
  ********************/
 
 // Get all companies
-router.get('/', util.verifyUser, companyController.getAllCompanies);
+router.get('/', companyController.getAllCompanies);
+
+// Get all the workers in the current company
+router.get(
+  '/:id/workers',
+  util.verifyUser,
+  util.verifyAdmin,
+  companyController.getCompanyWorkers
+);
 
 // Search companies
 router.get('/search', util.verifyUser, companyController.searchCompanies);
 
 // Get company by ID
 router.get('/:id', util.verifyUser, companyController.getCompanyById);
+
+// Get user's current Approval Status
+router.get(
+  '/user/:id/approvalStatus',
+  util.verifyUser,
+  companyController.getUserApprovalStatus
+);
 
 // Create company
 router.post(
@@ -32,6 +47,55 @@ router.put(
   util.verifyUser,
   util.verifyAdmin,
   companyController.updateCompany
+);
+
+//Set role for new users
+router.put('/user/:id/role', util.verifyUser, companyController.setUserRole);
+
+// New worker accounts request to join a company
+router.put(
+  '/:companyId/workerJoinCompany/:userId',
+  util.verifyUser,
+  util.verifyWorker,
+  companyController.workerJoinCompany
+);
+
+// New client accounts request to join a company
+router.put(
+  '/:companyId/clientJoinCompany/:userId',
+  util.verifyUser,
+  companyController.clientJoinCompany
+);
+
+// New admin accounts request to join a company
+router.put(
+  '/:companyId/adminJoinCompany/:userId',
+  util.verifyUser,
+  util.verifyAdmin,
+  companyController.adminJoinCompany
+);
+
+// Set Pending initial status for a worker to join a company's team
+router.put(
+  '/user/:id/pending',
+  util.verifyUser,
+  companyController.setUserPending
+);
+
+// Approve for a worker to join a company's team
+router.put(
+  '/user/:id/approve',
+  util.verifyUser,
+  util.verifyAdmin,
+  companyController.approveWorker
+);
+
+// Reject for a worker to join a company's team
+router.put(
+  '/user/:id/reject',
+  util.verifyUser,
+  util.verifyAdmin,
+  companyController.rejectWorker
 );
 
 // Delete company

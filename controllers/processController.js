@@ -11,15 +11,28 @@ const processController = {};
  ********************/
 
 // Get all processes for a company
-processController.getProcessList = async (req, res, next) => {
+processController.getProcessList = async (req, res) => {
   try {
     const companyId = req.user.user_company;
 
     let data = await processModel.getProcessListByCompanyId(companyId);
 
+    // Fetch materials for each process
+    const processesWithMaterials = await Promise.all(
+      data.map(async process => {
+        const materials = await materialModel.getMaterialsByMaterialList(
+          process.processId
+        );
+        return {
+          ...process,
+          materials: materials || [],
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      data: data,
+      data: processesWithMaterials,
     });
   } catch (error) {
     res.status(500).json({
@@ -30,7 +43,7 @@ processController.getProcessList = async (req, res, next) => {
 };
 
 // Get process Materials by process ID
-processController.getProcessMaterials = async (req, res, next) => {
+processController.getProcessMaterials = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -67,7 +80,7 @@ processController.getProcessMaterials = async (req, res, next) => {
  ********************/
 
 // Create a new process
-processController.createProcess = async (req, res, next) => {
+processController.createProcess = async (req, res) => {
   try {
     const companyId = req.user.user_company;
     const processData = {
@@ -97,7 +110,7 @@ processController.createProcess = async (req, res, next) => {
       data: data,
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -106,7 +119,7 @@ processController.createProcess = async (req, res, next) => {
 };
 
 // Add new material to the process' material list
-processController.addMaterialToMaterialList = async (req, res, next) => {
+processController.addMaterialToMaterialList = async (req, res) => {
   try {
     const newMaterial = req.body;
     const companyId = req.user.user_company;
@@ -141,7 +154,7 @@ processController.addMaterialToMaterialList = async (req, res, next) => {
  ********************/
 
 // Update a process
-processController.updateProcess = async (req, res, next) => {
+processController.updateProcess = async (req, res) => {
   try {
     const { id } = req.params;
     const processData = req.body;
@@ -177,7 +190,7 @@ processController.updateProcess = async (req, res, next) => {
 };
 
 // Update process materials
-processController.updateProcessMaterial = async (req, res, next) => {
+processController.updateProcessMaterial = async (req, res) => {
   try {
     const { processId, materialId } = req.params;
     const editedMaterial = req.body;
@@ -214,7 +227,7 @@ processController.updateProcessMaterial = async (req, res, next) => {
  ********************/
 
 // Delete a process
-processController.deleteProcess = async (req, res, next) => {
+processController.deleteProcess = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -242,7 +255,7 @@ processController.deleteProcess = async (req, res, next) => {
 };
 
 // Delete Mateiral from material list
-processController.deleteMaterialFromMaterialList = async (req, res, next) => {
+processController.deleteMaterialFromMaterialList = async (req, res) => {
   try {
     const { processId, materialId } = req.params;
 
