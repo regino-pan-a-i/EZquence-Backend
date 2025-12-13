@@ -18,6 +18,7 @@ const companyRouter = require('./routes/companyRouter');
 const cartRouter = require('./routes/cartRouter');
 const customerRouter = require('./routes/customerRouter.js');
 const feedbackRouter = require('./routes/feedbackRouter');
+const materialTransactionRouter = require('./routes/materialTransactionRouter');
 const cors = require('cors');
 
 /********************
@@ -54,6 +55,8 @@ app.use('/cart', cartRouter);
 app.use('/customer', customerRouter);
 
 app.use('/feedback', feedbackRouter);
+
+app.use('/materialTransaction', materialTransactionRouter);
 
 /***********************************
  * Server Listener
