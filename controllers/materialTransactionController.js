@@ -131,7 +131,6 @@ materialTransactionController.getMaterialTransactionsByDateRange = async (
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setDate(end.getDate() + 1);
-    console.log(end)
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({
