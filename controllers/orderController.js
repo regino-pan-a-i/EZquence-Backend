@@ -11,8 +11,15 @@ orderController.getDailyOrderList = async (req, res) => {
     const date = new Date();
     date.setHours(0, 0, 0, 0); // Set to 12 AM (midnight)
     const startDate = date.toISOString();
+    const endDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0];
     const companyId = req.user.user_company;
-    let data = await orderModel.getOrderListByDateRange(companyId, startDate);
+    let data = await orderModel.getOrderListByDateRange(
+      companyId,
+      startDate,
+      endDate
+    );
     res.status(200).json({
       success: true,
       data: data,
@@ -182,7 +189,7 @@ orderController.createOrder = async (req, res) => {
     // Create order object
     const orderData = {
       orderTotal: orderTotal,
-      paid: false,
+      paid: true,
       notes: notes || cartDetails.cart.notes || null,
       userId: userId,
       expectedDeliveryDate: deliveryDate ? new Date(deliveryDate) : new Date(),
