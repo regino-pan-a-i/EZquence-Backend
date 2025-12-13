@@ -28,6 +28,19 @@ const materialModel = {};
  * }
  */
 
+/*
+ *  Material Transaction schema
+ * materialTransaction{
+ *  materialTransactionId,
+ *  materialId,
+ *  companyId,
+ *  cost,
+ *  dateCreated,
+ *  quantity,
+ *  units
+ * }
+ */
+
 materialModel.getMaterialListByCompanyId = async companyId => {
   const { data, error } = await supabase
     .from('material')

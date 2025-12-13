@@ -51,7 +51,7 @@ orderModel.getOrderListByDateRange = async (
     .select('*')
     .eq('companyId', companyId)
     .gte('dateCreated', startDate)
-    .lt('dateCreated', endDate)
+    .lte('dateCreated', endDate)
     .order('dateCreated', { descending: true });
   if (error) throw error;
   return data;

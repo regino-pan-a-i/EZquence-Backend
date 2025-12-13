@@ -485,7 +485,7 @@ companyController.setUserPending = async (req, res, _next) => {
       });
     }
 
-    let data = await userModel.updateUserApprovalStatus(id, 'PENDING');
+    let data = await userModel.setInitialUserApprovalStatus(id, 'PENDING');
 
     res.status(200).json({
       success: true,
