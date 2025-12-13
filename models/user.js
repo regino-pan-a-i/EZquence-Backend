@@ -48,6 +48,26 @@ userModel.updateUserRole = async (userId, role) => {
 };
 
 // Update user approval status
+userModel.setInitialUserApprovalStatus = async (userId, approvalStatus) => {
+  if (!userId) {
+    throw new Error('userId is required');
+  }
+  if (!approvalStatus) {
+    throw new Error('approvalStatus is required');
+  }
+  const { data, error } = await supabase
+    .from('user')
+    .update({
+      approvalStatus: approvalStatus,
+    })
+    .eq('authId', userId)
+    .select();
+
+  if (error) throw error;
+  return data[0];
+};
+
+// Update user approval status
 userModel.updateUserApprovalStatus = async (userId, approvalStatus) => {
   if (!userId) {
     throw new Error('userId is required');
